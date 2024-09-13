@@ -26,4 +26,15 @@ trait withResponseHelpers
     {
         throw WithPlainErrorsValidationException::withMessages($validationErrors);
     }
+
+    /**
+     * @param string $validationError
+     * @param string $property
+     * @return void
+     * @throws WithPlainErrorsValidationException
+     */
+    public function responseWithPlainValidationError(string $validationError, string $property = 'general'): void
+    {
+        throw WithPlainErrorsValidationException::withMessage($validationError, $property);
+    }
 }
