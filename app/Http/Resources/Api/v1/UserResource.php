@@ -16,19 +16,19 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'isAnonymous' => $this->is_anonymous,
-            'personal' => $this->when(!$this->is_anonymous, fn () => $this->getPersonalData()),
+            'is_anonymous' => $this->is_anonymous,
+            'data' => $this->when(!$this->is_anonymous, fn () => $this->getPersonalData()),
         ];
     }
 
     public function getPersonalData(): array
     {
         return [
-            'firstName' => $this->first_name,
-            'secondName' => $this->second_name,
+            'first_name' => $this->first_name,
+            'second_name' => $this->second_name,
             'username' => $this->username,
             'email' => $this->email,
-            'isEmailVerified' => (bool) $this->email_verified_at,
+            'email_verified_at' => (bool) $this->email_verified_at,
         ];
     }
 }
