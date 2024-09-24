@@ -16,5 +16,6 @@ Route::name('api.')
         $prefix = '/api/v1';
 
         require __DIR__ . $prefix . '/auth.php';
+        require __DIR__ . $prefix . '/game.php';
     });
 });
