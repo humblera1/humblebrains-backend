@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Translatable\HasTranslations;
 
 class Game extends Model
@@ -12,10 +13,8 @@ class Game extends Model
 
     public $translatable = ['label', 'description'];
 
-    public function properties()
+    public function levels(): HasMany
     {
-        return $this->belongsToMany(Property::class)
-            ->withPivot('level', 'value')
-            ->withTimestamps();
+        return $this->hasMany(Level::class);
     }
 }
