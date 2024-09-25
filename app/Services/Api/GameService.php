@@ -18,23 +18,23 @@ final class GameService
             )
             ->join(
                 'levels as l',
-                'g.id',
+                'l.id',
                 '=',
-                'l.game_id'
+                'glp.level_id'
             )
             ->join(
                 'properties as p',
-                'glp.property_id',
+                'p.id',
                 '=',
-                'p.id'
+                'glp.property_id'
             )
-            ->select('glp.value', 'l.level_number', 'p.name')
+            ->select('glp.value', 'l.level_number', 'p.name', 'p.type')
             ->where('g.name', $gameName)
             ->orderBy('l.level_number')
             ->get()
             ->groupBy('level_number')
             ->map(function (Collection $items) {
-                return $items->pluck('value', 'name');
+                return $items->pluckWithCast('type', 'value', 'name');
             })
             ->toArray();
     }
