@@ -3,6 +3,7 @@
 return [
     [
         'name' => 'square_side',
+        'type' => \App\Enums\TypeEnum::Integer,
         'label' => [
             'en' => 'Square side',
             'ru' => 'Сторона квадрата',
@@ -14,6 +15,7 @@ return [
     ],
     [
         'name' => 'cells_amount_to_reproduce',
+        'type' => \App\Enums\TypeEnum::Integer,
         'label' => [
             'en' => 'Number of cells to reproduce',
             'ru' => 'Количество ячеек для запоминания',
@@ -25,6 +27,7 @@ return [
     ],
     [
         'name' => 'colors_amount',
+        'type' => \App\Enums\TypeEnum::Integer,
         'label' => [
             'en' => 'Number of colors',
             'ru' => 'Количество цветов',
@@ -36,6 +39,7 @@ return [
     ],
     [
         'name' => 'correct_answers_before_promotion',
+        'type' => \App\Enums\TypeEnum::Integer,
         'label' => [
             'en' => 'Number of correct answers before leveling up',
             'ru' => 'Количество правильных ответов до повышения уровня',
@@ -47,6 +51,7 @@ return [
     ],
     [
         'name' => 'incorrect_answers_before_demotion',
+        'type' => \App\Enums\TypeEnum::Integer,
         'label' => [
             'en' => 'Number of incorrect answers before level decreases',
             'ru' => 'Количество неправильных ответов до понижения уровня',
@@ -58,6 +63,7 @@ return [
     ],
     [
         'name' => 'rotation_iterations',
+        'type' => \App\Enums\TypeEnum::Integer,
         'label' => [
             'en' => 'Number of rotations',
             'ru' => 'Количество поворотов',
@@ -69,6 +75,7 @@ return [
     ],
     [
         'name' => 'has_order',
+        'type' => \App\Enums\TypeEnum::Boolean,
         'label' => [
             'en' => 'Checking the order',
             'ru' => 'Проверка порядка',
