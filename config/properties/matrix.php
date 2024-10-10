@@ -46,7 +46,7 @@ return [
         ],
         'description' => [
             'en' => 'After this number of correct answers given in a row, the level will be increased.',
-            'ru' => 'После данного количества правильных ответов, данных подряд, уровень будет повышен',
+            'ru' => 'После указанного количества правильных ответов, данных подряд, уровень будет повышен',
         ],
     ],
     [
@@ -58,7 +58,7 @@ return [
         ],
         'description' => [
             'en' => 'After this number of incorrect answers given in a row, the level will be reduced to the previous one',
-            'ru' => 'После данного количества неправильных ответов, данных подряд, уровень будет понижен до предыдущего',
+            'ru' => 'После указанного количества неправильных ответов, данных подряд, уровень будет понижен до предыдущего',
         ],
     ],
     [
