@@ -23,13 +23,13 @@ class AuthController extends Controller
         protected AuthService $service,
     ) {}
 
-    public function me(Request $request): UserResource
+    public function me(): UserResource
     {
         if (!Auth::check()) {
             $this->service->registerAndLoginAnonymousUser();
         }
 
-        return new UserResource(Auth::user());
+        return new UserResource(Auth::user()->loadWithRelations());
     }
 
     /**
@@ -55,7 +55,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return new UserResource(Auth::user());
+        return new UserResource(Auth::user()->loadWithRelations());
     }
 
     /**
@@ -78,6 +78,6 @@ class AuthController extends Controller
             ? $this->service->promoteCurrentUserToFullFledged($credentials)
             : $this->service->registerAndLoginFullFledgedUser($credentials);
 
-        return new UserResource(Auth::user());
+        return new UserResource(Auth::user()->loadWithRelations());
     }
 }
