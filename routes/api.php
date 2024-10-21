@@ -17,5 +17,6 @@ Route::name('api.')
 
         require __DIR__ . $prefix . '/auth.php';
         require __DIR__ . $prefix . '/game.php';
+        require __DIR__ . $prefix . '/checkpoint.php';
     });
 });
