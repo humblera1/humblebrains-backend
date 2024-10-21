@@ -3,6 +3,7 @@
 namespace App\Services\Api;
 
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,7 @@ final class AuthService
     {
         self::prepareCredentialsToRegisterAnonymous($credentials);
 
-        return self::upsertUser($credentials);
+        return self::registerUser($credentials);
     }
 
     /**
@@ -29,7 +30,20 @@ final class AuthService
     {
         self::prepareCredentialsToRegisterFullFledged($credentials);
 
-        return self::upsertUser($credentials);
+        return self::registerUser($credentials);
+    }
+
+    /**
+     * @param array $credentials
+     * @return User
+     */
+    public function registerUser(array $credentials): User
+    {
+        $user =  self::upsertUser($credentials);
+
+        event(new Registered($user));
+
+        return $user;
     }
 
     /**

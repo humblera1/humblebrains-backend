@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -40,5 +42,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function loadWithRelations()
+    {
+        return $this->load('latestCheckpoint.stages.category');
+    }
+
+    public function checkpoints(): HasMany
+    {
+        return $this->hasMany(Checkpoint::class);
+    }
+
+    public function latestCheckpoint(): HasOne
+    {
+        return $this->hasOne(Checkpoint::class)->latest();
     }
 }
