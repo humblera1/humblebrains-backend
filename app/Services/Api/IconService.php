@@ -9,10 +9,10 @@ class IconService
 {
     public function getRandomIconUrls(int $amount): array
     {
-        $icons = Icon::inRandomOrder()->take($amount)->get();
+        $paths = Icon::inRandomOrder()->take($amount)->pluck('path');
 
-        return $icons->map(function ($icon) {
-            return Storage::url($icon->path);
+        return $paths->map(function ($path) {
+            return Storage::url($path);
         })->toArray();
     }
 }
