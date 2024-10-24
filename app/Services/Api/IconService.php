@@ -13,6 +13,6 @@ class IconService
 
         return $icons->map(function ($icon) {
             return Storage::url($icon->path);
-        });
+        })->toArray();
     }
 }
