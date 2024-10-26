@@ -9,7 +9,9 @@
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
-        "spatie/laravel-translatable": "^6.8"
+        "spatie/laravel-translatable": "^6.8",
+        "ext-dom": "*",
+        "ext-libxml": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
