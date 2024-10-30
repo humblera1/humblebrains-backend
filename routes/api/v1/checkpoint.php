@@ -7,5 +7,5 @@ Route::controller(CheckpointController::class)
     ->prefix('checkpoint')
     ->name('checkpoint.')
     ->group(function () {
-        Route::post('/finish-stage', 'finishStage')->name('finish-stage');
+        Route::post('/finish-stage', 'finishStage')->name('finish-stage')->middleware('auth:sanctum');
     });

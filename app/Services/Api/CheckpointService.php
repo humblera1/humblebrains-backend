@@ -2,13 +2,10 @@
 
 namespace App\Services\Api;
 
-use App\Events\StageCompleted;
-use App\Models\Category;
 use App\Models\CheckpointStage;
 use App\Models\User;
-use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class CheckpointService
@@ -16,58 +13,59 @@ final class CheckpointService
     /**
      * Saves checkpoint stage result for the current user.
      *
-     * @throws HttpException If no uncompleted checkpoint is found for the user or if no
-     * uncompleted stage is found for the provided category.
+     * @param array $stageResult
+     * @return void
      *
-     * @throws Exception If the update fails
+     * @throws HttpException if no uncompleted stage is found for the provided category
      */
     public function saveStage(array $stageResult): void
     {
         list('category' => $category, 'score' => $score) = $stageResult;
 
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::user()->loadLatestCheckpointRelations();
 
-        $user->load(['latestCheckpoint' => function ($query) {
-            $query->uncompleted();
-        }]);
+        $checkpoint = $user->latestUncompletedCheckpoint;
 
-        $checkpoint = $user->latestCheckpoint;
-        $categoryId = Category::where('name', $category)->value('id');
-
-        if (!$checkpoint) {
-            throw new HttpException(400, 'Uncompleted checkpoint not found for user');
+        if (is_null($checkpoint)) {
+            throw new ModelNotFoundException('No unfinished checkpoint found.');
         }
 
-        $checkpointStage = CheckpointStage::where('category_id', $categoryId)
-            ->where('checkpoint_id', $checkpoint->id)
-            ->uncompleted()
+        $stages = $checkpoint->stages;
+
+        /** @var CheckpointStage $stage */
+        $stage = $checkpoint
+            ->stages
+            ->where('is_completed', false)
+            ->where('category.name', $category)
             ->first();
 
-        if (!$checkpointStage) {
-            throw new HttpException(400, 'Uncompleted stage not found for provided category');
+        if (is_null($stage)) {
+            throw new ModelNotFoundException('No unfinished stage found by provided category');
         }
 
-        DB::beginTransaction();
+        $stage->score = $score;
+        $stage->is_completed = true;
 
-        try {
-            $wasUpdated = $checkpointStage->update([
-                'score' => $score,
-                'is_completed' => true
-            ]);
+        // checking if all stages are completed
+        $allStagesCompleted = $stages->every(function ($stage) {
+            return $stage->is_completed === true;
+        });
 
-            if (!$wasUpdated) {
-                throw new Exception('Failed to update the stage');
-            }
+        if ($allStagesCompleted) {
+            // if the score for the stages of several categories is the same, the user must select the category himself
+            $scores = $stages->pluck('score');
+            $duplicates = $scores->duplicates();
 
-            event(new StageCompleted($checkpointStage));
+             if ($duplicates->isEmpty()) {
+                 // finally, if all stages are completed, and we can determine desired category
+                 // we update the checkpoint and generate new program
+                 $checkpoint->is_completed = true;
 
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            // Обработка ошибки
-            throw $e;
+                 // todo: generate new program in program service by provided category
+             }
         }
+
+        $user->push();
     }
 }

@@ -92,6 +92,7 @@ final class AuthService
     public function prepareCredentialsToRegisterAnonymous(array &$credentials): void
     {
         $credentials['id'] = null;
+        $credentials['is_anonymous'] = true;
     }
 
     /**
@@ -122,7 +123,10 @@ final class AuthService
      */
     public function upsertUser(array $credentials): User
     {
-        return User::updateOrCreate($credentials, ['id']);
+        return User::updateOrCreate(
+            ['id' => $credentials['id']],
+            Arr::except($credentials, ['id'])
+        );
     }
 
     /**
