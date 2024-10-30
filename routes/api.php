@@ -12,7 +12,7 @@ Route::name('api.')
         ]
     )
     ->group(function () {
-    Route::prefix('v1')->name('.v1')->group(function () {
+    Route::prefix('v1')->name('v1.')->group(function () {
         $prefix = '/api/v1';
 
         require __DIR__ . $prefix . '/auth.php';
