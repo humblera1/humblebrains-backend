@@ -4,6 +4,7 @@ namespace App\Services\Api;
 
 use App\Models\CheckpointStage;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -22,13 +23,26 @@ final class CheckpointService
         list('category' => $category, 'score' => $score) = $stageResult;
 
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::user()->loadLatestCheckpointRelations();
 
-        $checkpoint = $user->latestUncompletedCheckpoint->firstOrFail();
+        $checkpoint = $user->latestUncompletedCheckpoint;
+
+        if (is_null($checkpoint)) {
+            throw new ModelNotFoundException('No unfinished checkpoint found.');
+        }
+
         $stages = $checkpoint->stages;
 
         /** @var CheckpointStage $stage */
-        $stage = $checkpoint->stages->where('category.name', $category)->firstOrFail();
+        $stage = $checkpoint
+            ->stages
+            ->where('is_completed', false)
+            ->where('category.name', $category)
+            ->first();
+
+        if (is_null($stage)) {
+            throw new ModelNotFoundException('No unfinished stage found by provided category');
+        }
 
         $stage->score = $score;
         $stage->is_completed = true;
@@ -52,6 +66,6 @@ final class CheckpointService
              }
         }
 
-        $checkpoint->push();
+        $user->push();
     }
 }

@@ -47,15 +47,15 @@ class User extends Authenticatable
         ];
     }
 
-    public function loadWithRelations(): void
+    public function loadWithRelations(): self
     {
-        $this->load('latestCheckpoint.stages.category');
+        return $this->load('latestCheckpoint.stages.category');
     }
 
-    public function loadLatestCheckpointRelations()
+    public function loadLatestCheckpointRelations(): self
     {
         return $this->load([
-            'latestCheckpoint' => [
+            'latestUncompletedCheckpoint' => [
                  'stages' => [
                       'category',
                      ],
