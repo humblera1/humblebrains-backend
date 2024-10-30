@@ -14,13 +14,10 @@ class CheckpointController extends Controller
         protected CheckpointService $service,
     ) {}
 
-    public function finishStage(SaveStageRequest $request): UserResource
+    public function finishStage(SaveStageRequest $request)
     {
-        $user = Auth::user();
-        $user->loadLatestCheckpointRelations();
-
         $this->service->saveStage($request->validated());
 
-        return new UserResource($user);
+        return new UserResource(Auth::user());
     }
 }

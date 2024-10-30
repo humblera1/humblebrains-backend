@@ -17,8 +17,8 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'is_anonymous' => $this->is_anonymous,
-            'data' => $this->when(!$this->is_anonymous, fn () => $this->getPersonalData()),
-            'checkpoint' => new CheckpointResource($this->whenLoaded('latestCheckpoint')),
+            'personal_data' => $this->when(!$this->is_anonymous, fn () => $this->getPersonalData()),
+            'checkpoint' => new CheckpointResource($this->whenLoaded('latestUncompletedCheckpoint')),
         ];
     }
 

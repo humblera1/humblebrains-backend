@@ -2,13 +2,13 @@
 
 namespace App\Http\Requests\Api\v1\checkpoint;
 
-use App\Enums\Game\CategoryEnum;
+use App\Models\Traits\Requests\WithPlainErrors;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class SaveStageRequest extends FormRequest
 {
+    use withPlainErrors;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -25,7 +25,7 @@ class SaveStageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category' => ['required', Rule::enum(CategoryEnum::class)],
+            'category' => ['required', 'exists:categories,name'],
             'score' => ['required', 'integer', 'min:0', 'max:100'],
         ];
     }
