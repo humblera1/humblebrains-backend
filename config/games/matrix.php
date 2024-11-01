@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\Game\CategoryEnum;
+
 return [
     'name' => 'matrix',
     'label' => [
@@ -14,6 +16,7 @@ return [
     //    'main_image' => '',
     //    'thumbnail_image' => '',
     //    'icon_image'
+    'category' => CategoryEnum::Memory,
     'levels' => [
         1 => [
             'square_side' => 3,

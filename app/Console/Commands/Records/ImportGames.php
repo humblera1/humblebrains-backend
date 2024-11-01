@@ -12,6 +12,8 @@ class ImportGames extends AbstractRecordCommand
     private string $gamesTable = 'games';
     private string $propertiesTable = 'properties';
 
+    private string $categoriesTable = 'categories';
+
     private string $gameLevelPropertiesTable = 'game_level_properties';
 
     /**
@@ -63,6 +65,7 @@ class ImportGames extends AbstractRecordCommand
         unset($gameData['levels']);
 
         $this->prepareTranslatableData($gameData);
+        $this->prepareCategoryData($gameData);
 
         DB::transaction(function() use ($gameName, $gameData, $levelsData) {
             $inserted = DB::table($this->gamesTable)->updateOrInsert(['name' => $gameName], $gameData);
@@ -124,5 +127,15 @@ class ImportGames extends AbstractRecordCommand
         });
 
         $this->info('Game ' . $gameName . ' successfully inserted!');
+    }
+
+    private function prepareCategoryData(array &$data): void
+    {
+        $categoryName = $data['category'];
+        $categoryId = DB::table($this->categoriesTable)->where('name', $categoryName)->value('id');
+
+        unset($data['category']);
+
+        $data['category_id'] = $categoryId;
     }
 }
