@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Program extends Model
 {
@@ -23,5 +24,10 @@ class Program extends Model
     public function priorityCategory(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(ProgramSession::class);
     }
 }
