@@ -10,6 +10,7 @@ return [
         'ru' => 'Описание игры матрица',
         'en' => 'Matrix description',
     ],
+    'max_level' => 30,
     //    'main_image' => '',
     //    'thumbnail_image' => '',
     //    'icon_image'
