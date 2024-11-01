@@ -10,32 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 final class GameService
 {
-    public function getLevels(string $gameName): array
-    {
-        return DB::table('games as g')
-            ->join(
-                'game_level_properties as glp',
-                'g.id',
-                '=',
-                'glp.game_id'
-            )
-            ->join(
-                'properties as p',
-                'p.id',
-                '=',
-                'glp.property_id'
-            )
-            ->select('glp.value', 'level', 'p.name', 'p.type')
-            ->where('g.name', $gameName)
-            ->orderBy('level')
-            ->get()
-            ->groupBy('level')
-            ->map(function (Collection $items) {
-                return $items->pluckWithCast('type', 'value', 'name');
-            })
-            ->toArray();
-    }
-
     /**
      * @param GameResultDTO $gameResulDTO
      * @return void
