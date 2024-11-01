@@ -1,6 +1,57 @@
 <?php
 
 return [
+    // generals
+    [
+        'name' => 'time_to_contemplate',
+        'type' => \App\Enums\TypeEnum::Integer,
+        'label' => [
+            'en' => 'Time for contemplation',
+            'ru' => 'Время на запоминание',
+        ],
+        'description' => [
+            'en' => 'Maximum amount of time allotted for contemplation (in seconds)',
+            'ru' => 'Максимальное количество времени, отведенного на запоминание (в секундах)',
+        ],
+    ],
+    [
+        'name' => 'time_to_answer',
+        'type' => \App\Enums\TypeEnum::Integer,
+        'label' => [
+            'en' => 'Time for answering',
+            'ru' => 'Время на ответ',
+        ],
+        'description' => [
+            'en' => 'Maximum amount of time allotted for answering (in seconds)',
+            'ru' => 'Максимальное количество времени, отведенного на ответ (в секундах)',
+        ],
+    ],
+    [
+        'name' => 'correct_answers_before_promotion',
+        'type' => \App\Enums\TypeEnum::Integer,
+        'label' => [
+            'en' => 'Number of correct answers before leveling up',
+            'ru' => 'Количество правильных ответов до повышения уровня',
+        ],
+        'description' => [
+            'en' => 'After this number of correct answers given in a row, the level will be increased.',
+            'ru' => 'После указанного количества правильных ответов, данных подряд, уровень будет повышен',
+        ],
+    ],
+    [
+        'name' => 'incorrect_answers_before_demotion',
+        'type' => \App\Enums\TypeEnum::Integer,
+        'label' => [
+            'en' => 'Number of incorrect answers before level decreases',
+            'ru' => 'Количество неправильных ответов до понижения уровня',
+        ],
+        'description' => [
+            'en' => 'After this number of incorrect answers given in a row, the level will be reduced to the previous one',
+            'ru' => 'После указанного количества неправильных ответов, данных подряд, уровень будет понижен до предыдущего',
+        ],
+    ],
+
+    // matrix
     [
         'name' => 'square_side',
         'type' => \App\Enums\TypeEnum::Integer,
@@ -38,30 +89,6 @@ return [
         ],
     ],
     [
-        'name' => 'correct_answers_before_promotion',
-        'type' => \App\Enums\TypeEnum::Integer,
-        'label' => [
-            'en' => 'Number of correct answers before leveling up',
-            'ru' => 'Количество правильных ответов до повышения уровня',
-        ],
-        'description' => [
-            'en' => 'After this number of correct answers given in a row, the level will be increased.',
-            'ru' => 'После указанного количества правильных ответов, данных подряд, уровень будет повышен',
-        ],
-    ],
-    [
-        'name' => 'incorrect_answers_before_demotion',
-        'type' => \App\Enums\TypeEnum::Integer,
-        'label' => [
-            'en' => 'Number of incorrect answers before level decreases',
-            'ru' => 'Количество неправильных ответов до понижения уровня',
-        ],
-        'description' => [
-            'en' => 'After this number of incorrect answers given in a row, the level will be reduced to the previous one',
-            'ru' => 'После указанного количества неправильных ответов, данных подряд, уровень будет понижен до предыдущего',
-        ],
-    ],
-    [
         'name' => 'rotation_iterations',
         'type' => \App\Enums\TypeEnum::Integer,
         'label' => [
@@ -85,6 +112,4 @@ return [
             'ru' => 'Следует ли дополнительно проверять соответствие порядка открытия ячеек порядку их показа пользователю',
         ],
     ],
-
-    // todo: время на запоминание и время на ответ
 ];

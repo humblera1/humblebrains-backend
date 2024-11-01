@@ -6,6 +6,10 @@ use Illuminate\Console\Command;
 
 abstract class AbstractRecordCommand extends Command
 {
+    const SKIP_MODE = 'skip';
+
+    const UPDATE_MODE = 'update';
+
     /**
      * Encode translatable data to json.
      *
