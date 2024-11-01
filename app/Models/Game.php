@@ -12,9 +12,4 @@ class Game extends Model
     use HasFactory, HasTranslations;
 
     public $translatable = ['label', 'description'];
-
-    public function levels(): HasMany
-    {
-        return $this->hasMany(Level::class);
-    }
 }

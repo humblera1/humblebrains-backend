@@ -15,11 +15,6 @@ class GameLevelProperty extends Model
         return $this->belongsTo(Game::class);
     }
 
-    public function level(): BelongsTo
-    {
-        return $this->belongsTo(Level::class);
-    }
-
     public function property(): BelongsTo
     {
         return $this->belongsTo(Property::class);

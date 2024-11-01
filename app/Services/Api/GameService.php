@@ -2,7 +2,10 @@
 
 namespace App\Services\Api;
 
+use App\Entities\game\GameResultDTO;
+use App\Models\GamesHistory;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 final class GameService
@@ -17,26 +20,57 @@ final class GameService
                 'glp.game_id'
             )
             ->join(
-                'levels as l',
-                'l.id',
-                '=',
-                'glp.level_id'
-            )
-            ->join(
                 'properties as p',
                 'p.id',
                 '=',
                 'glp.property_id'
             )
-            ->select('glp.value', 'l.level_number', 'p.name', 'p.type')
+            ->select('glp.value', 'level', 'p.name', 'p.type')
             ->where('g.name', $gameName)
-            ->orderBy('l.level_number')
+            ->orderBy('level')
             ->get()
-            ->groupBy('level_number')
+            ->groupBy('level')
             ->map(function (Collection $items) {
                 return $items->pluckWithCast('type', 'value', 'name');
             })
             ->toArray();
     }
 
+    /**
+     * @param GameResultDTO $gameResulDTO
+     * @return void
+     */
+    public function saveGame(GameResultDTO $gameResulDTO): void
+    {
+        $user = Auth::user();
+
+        // сохранение в games_history и получение идентификатора
+        $gameHistory = GamesHistory::create([
+            'user_id' => $user->id,
+            'game_id' => $gameResulDTO->gameId,
+            'level' => $gameResulDTO->finishedAtTheLevel,
+            'score' => $gameResulDTO->score,
+        ]);
+
+        $gameHistoryId = $gameHistory->id;
+
+        // update max level
+        if (true) {
+
+        }
+
+        if ($gameResulDTO->withinSession) {
+            // загружаем связи: program.session.game
+//            $user->load();
+
+            // сохранение в session_games
+
+        }
+
+    }
+
+    public function generateAchievementsForLastGame()
+    {
+
+    }
 }
