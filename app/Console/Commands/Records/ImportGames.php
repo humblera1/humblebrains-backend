@@ -14,6 +14,8 @@ class ImportGames extends AbstractRecordCommand
 
     private string $categoriesTable = 'categories';
 
+    private string $tutorialsTable = 'game_tutorials';
+
     private string $gameLevelPropertiesTable = 'game_level_properties';
 
     /**
@@ -67,13 +69,27 @@ class ImportGames extends AbstractRecordCommand
         $this->prepareTranslatableData($gameData);
         $this->prepareCategoryData($gameData);
 
-        DB::transaction(function() use ($gameName, $gameData, $levelsData) {
+        // todo: когда туториалы вырастут (будут представляться слайдерами на фронте), будет использоваться отдельный файл конфигов
+        $tutorialsData['content'] =  $gameData['tutorial'] ?? '';
+        unset($gameData['tutorial']);
+
+        DB::transaction(function() use ($gameName, $gameData, $levelsData, $tutorialsData) {
             $inserted = DB::table($this->gamesTable)->updateOrInsert(['name' => $gameName], $gameData);
+
+            $gameId = DB::table($this->gamesTable)->where('name', $gameName)->value('id');
 
             if  (!$inserted) {
                 $this->error("Can't insert game '{$gameName}', skipping");
 
                 throw new Exception();
+            }
+
+            if (!empty($tutorialsData)) {
+                $tutorialsData['game_id'] = $gameId;
+                $tutorialsData['created_at'] = now();
+                $tutorialsData['updated_at'] = now();
+
+                DB::table($this->tutorialsTable)->upsert($tutorialsData, ['id'], ['game_id', 'content', 'created_at', 'updated_at']);
             }
 
             if (!empty($levelsData)) {
@@ -95,8 +111,6 @@ class ImportGames extends AbstractRecordCommand
 
                     throw new Exception();
                 }
-
-                $gameId = DB::table($this->gamesTable)->where('name', $gameName)->value('id');
 
                 // upserting levels
                 $gameLevelPropertiesData = [];

@@ -17,6 +17,9 @@ return [
     //    'thumbnail_image' => '',
     //    'icon_image'
     'category' => CategoryEnum::Memory,
+    'tutorial' => [
+        'ru' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+    ],
     'levels' => [
         1 => [
             'square_side' => 3,
