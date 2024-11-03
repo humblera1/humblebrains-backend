@@ -20,9 +20,9 @@ class GameDetailResource extends JsonResource
             'description' => $this->description,
             'image' => $this->main_image,
             'max_level' => $this->max_level,
-            'category' => CategoryResource::make($this->whenLoaded('category')),
-            'tutorial' => GameTutorialResource::make($this->whenLoaded('tutorial')),
-            'tags' => TagResource::collection($this->whenLoaded('tags')),
+            'category' => CategoryResource::make($this->category),
+            'tutorial' => GameTutorialResource::make($this->tutorial),
+            'tags' => TagResource::collection($this->tags),
         ];
     }
 }

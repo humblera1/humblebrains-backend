@@ -24,7 +24,7 @@ class GameRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'game' => ['required', Rule::enum(GameEnum::class)],
+            'game' => ['required', 'exists:games,name'],
         ];
     }
 }

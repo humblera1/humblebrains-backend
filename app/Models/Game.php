@@ -17,6 +17,14 @@ class Game extends Model
 
     public $translatable = ['label', 'description'];
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'name';
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
