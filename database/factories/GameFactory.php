@@ -14,7 +14,7 @@ class GameFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'label' => $this->faker->words(),
+            'label' => $this->faker->word(),
             'description' => $this->faker->text(),
             'main_image' => $this->faker->word(),
             'thumbnail_image' => $this->faker->word(),
