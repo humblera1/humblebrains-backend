@@ -89,23 +89,24 @@ class User extends Authenticatable
         });
     }
 
-//    public function latestUncompletedStages(): HasManyThrough
-//    {
+    public function latestUncompletedStages(): HasManyThrough
+    {
+        // todo: this implementation is here for performance comparison
         // Using whereIn even though the subquery returns a single value.
         // This ensures all conditions are preserved
         //        return $this->stages()
         //            ->whereIn('checkpoints.id', $this->latestUncompletedCheckpoint()->select('id')->getQuery())
         //            ->where('checkpoint_stages.is_completed', false);
 
-//        return $this->stages()
-//            ->where('checkpoint_stages.is_completed', false)
-//            ->where('checkpoints.id', function (QueryBuilder $query) {
-//                $query->select('id')
-//                    ->from('checkpoints')
-//                    ->where('checkpoints.user_id', $this->id)
-//                    ->where('is_completed', false)
-//                    ->orderByDesc('id')
-//                    ->take(1);
-//            });
-//    }
+        return $this->stages()
+            ->where('checkpoint_stages.is_completed', false)
+            ->where('checkpoints.id', function (QueryBuilder $query) {
+                $query->select('id')
+                    ->from('checkpoints')
+                    ->where('checkpoints.user_id', $this->id)
+                    ->where('is_completed', false)
+                    ->orderByDesc('id')
+                    ->take(1);
+            });
+    }
 }

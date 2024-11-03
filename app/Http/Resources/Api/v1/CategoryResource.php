@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api\v1;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CheckpointStageResource extends JsonResource
+class CategoryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,9 +16,7 @@ class CheckpointStageResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'score' => $this->score,
-            'is_completed' => $this->is_completed,
-            'category' => new CategoryResource($this->whenLoaded('category')),
+            'name' => $this->name,
         ];
     }
 }

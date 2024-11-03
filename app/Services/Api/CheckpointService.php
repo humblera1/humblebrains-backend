@@ -2,6 +2,8 @@
 
 namespace App\Services\Api;
 
+use App\Entities\DTOs\checkpoint\StageResultDTO;
+use App\Models\Category;
 use App\Models\CheckpointStage;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -13,59 +15,26 @@ final class CheckpointService
     /**
      * Saves checkpoint stage result for the current user.
      *
-     * @param array $stageResult
-     * @return void
+     * @param StageResultDTO $stageResultDTO
+     * @return CheckpointStage
      *
-     * @throws HttpException if no uncompleted stage is found for the provided category
+     * @throws ModelNotFoundException if no uncompleted stage is found for the provided category
      */
-    public function saveStage(array $stageResult): void
+    public function saveStage(StageResultDTO $stageResultDTO): CheckpointStage
     {
-        list('category' => $category, 'score' => $score) = $stageResult;
-
         /** @var User $user */
-        $user = Auth::user()->loadLatestCheckpointRelations();
+        $user = Auth::user();
 
-        $checkpoint = $user->latestUncompletedCheckpoint;
-
-        if (is_null($checkpoint)) {
-            throw new ModelNotFoundException('No unfinished checkpoint found.');
-        }
-
-        $stages = $checkpoint->stages;
+        $categorySubquery = Category::select('id')->where('name', $stageResultDTO->categoryName);
 
         /** @var CheckpointStage $stage */
-        $stage = $checkpoint
-            ->stages
-            ->where('is_completed', false)
-            ->where('category.name', $category)
-            ->first();
+        $stage = $user->latestUncompletedStages()->where('category.name', $categorySubquery)->firstOrFail();
 
-        if (is_null($stage)) {
-            throw new ModelNotFoundException('No unfinished stage found by provided category');
-        }
-
-        $stage->score = $score;
+        $stage->score = $stageResultDTO->score;
         $stage->is_completed = true;
 
-        // checking if all stages are completed
-        $allStagesCompleted = $stages->every(function ($stage) {
-            return $stage->is_completed === true;
-        });
+        $stage->save();
 
-        if ($allStagesCompleted) {
-            // if the score for the stages of several categories is the same, the user must select the category himself
-            $scores = $stages->pluck('score');
-            $duplicates = $scores->duplicates();
-
-             if ($duplicates->isEmpty()) {
-                 // finally, if all stages are completed, and we can determine desired category
-                 // we update the checkpoint and generate new program
-                 $checkpoint->is_completed = true;
-
-                 // todo: generate new program in program service by provided category
-             }
-        }
-
-        $user->push();
+        return $stage;
     }
 }
