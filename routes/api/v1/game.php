@@ -10,6 +10,6 @@ Route::controller(GameController::class)
     ->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/levels', 'levels')->name('levels');
-        Route::get('/{game}', [GameController::class, 'show'])->name('show');
-
+        Route::get('/{game}','show')->name('show');
+        Route::get('/{game}/total-achievements', 'totalAchievements')->name('total-achievements')->middleware('auth:sanctum');
     });

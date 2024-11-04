@@ -5,6 +5,7 @@ namespace App\Services\Api;
 use App\Entities\game\GameResultDTO;
 use App\Models\Game;
 use App\Models\GamesHistory;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
@@ -46,7 +47,6 @@ final class GameService
     public function getGamesList(int $categoryId = null): Collection
     {
         $user = Auth::user();
-        $user = User::find(1);
 
         $gamesQuery = Game::with('tags');
 

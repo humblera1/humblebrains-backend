@@ -9,6 +9,7 @@ use App\Http\Requests\Api\v1\GameRequest;
 use App\Http\Resources\Api\v1\GameDetailResource;
 use App\Http\Resources\Api\v1\GamePreviewResource;
 use App\Models\Game;
+use App\Services\Api\AchievementService;
 use App\Services\Api\GameService;
 
 class GameController extends Controller
@@ -27,9 +28,11 @@ class GameController extends Controller
         return GamePreviewResource::collection($this->service->getGamesList($request->get('category_id')));
     }
 
-    public function totalAchievements(Game $game)
+    public function totalAchievements(Game $game): array
     {
-//        return $this->service->generateTotalAchievements($game);
+        return [
+            'achievements' => app(AchievementService::class, ['game' => $game])->getTotalAchievements(),
+        ];
     }
 
     public function levels(GameRequest $request): array
