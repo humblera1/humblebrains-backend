@@ -77,6 +77,16 @@ class User extends Authenticatable
         return $this->throughCheckpoints()->hasStages();
     }
 
+    public function history(): HasMany
+    {
+        return $this->hasMany(History::class);
+    }
+
+    public function gameStatistics(): HasMany
+    {
+        return $this->hasMany(UserGameStatistic::class);
+    }
+
     public function latestCheckpoint(): HasOne
     {
         return $this->checkpoints()->one()->latestOfMany();
