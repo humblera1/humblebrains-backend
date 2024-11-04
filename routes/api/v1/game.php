@@ -8,6 +8,7 @@ Route::controller(GameController::class)
     ->prefix('games')
     ->name('games.')
     ->group(function () {
+        Route::get('/', 'index')->name('index');
         Route::get('/levels', 'levels')->name('levels');
         Route::get('/{game}', [GameController::class, 'show'])->name('show');
 

@@ -3,10 +3,10 @@
 namespace App\Services\Api;
 
 use App\Entities\game\GameResultDTO;
+use App\Models\Game;
 use App\Models\GamesHistory;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 final class GameService
 {
@@ -41,6 +41,28 @@ final class GameService
 
         }
 
+    }
+
+    public function getGamesList(int $categoryId = null): Collection
+    {
+        $user = Auth::user();
+        $user = User::find(1);
+
+        $gamesQuery = Game::with('tags');
+
+        if ($user) {
+            $gamesQuery->with(['userStatistics' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }]);
+        }
+
+        if ($categoryId) {
+            $gamesQuery->whereHas('category', function ($query) use ($categoryId) {
+                $query->where('id', $categoryId);
+            });
+        }
+
+        return $gamesQuery->get();
     }
 
     public function generateAchievementsForLastGame()
