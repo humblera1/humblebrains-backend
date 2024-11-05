@@ -89,6 +89,10 @@ final class AchievementService
 
         $totalUsersCount = TotalUser::value('count');
 
+        if ($totalUsersCount === 0) {
+            return; // Application error
+        }
+
         $currentUserScoreRatio = $this->user->gameStatistics()->selectRaw('total_score / played_games_amount as score_ratio')->value('score_ratio');
 
         $lowerScoreUsersCount = UserGameStatistic::where('game_id', $this->game->id)
@@ -96,7 +100,11 @@ final class AchievementService
             ->whereRaw('total_score / played_games_amount < ?', [$currentUserScoreRatio])
             ->count();
 
-        $percent = ($lowerScoreUsersCount / $totalUsersCount) * 100;
+        if ($lowerScoreUsersCount === 0) {
+            return; // No users to compare scores with
+        }
+
+        $percent = (integer) round(($lowerScoreUsersCount / $totalUsersCount) * 100);
 
         if ($percent > 100) {
             return; // ???
@@ -116,6 +124,9 @@ final class AchievementService
 
     public function awardAchievement(TotalAchievementEnum $type, string $message): void
     {
-        $this->achievementsList[$type->value] = $message;
+        $this->achievementsList[] = [
+            'type' => $type->value,
+            'content' => $message
+        ];
     }
 }
