@@ -46,13 +46,11 @@ final class GameService
 
     public function getGamesList(int $categoryId = null): Collection
     {
-        $user = Auth::user();
-
         $gamesQuery = Game::with('tags');
 
-        if ($user) {
-            $gamesQuery->with(['userStatistics' => function ($query) use ($user) {
-                $query->where('user_id', $user->id);
+        if ($userId = Auth::id()) {
+            $gamesQuery->with(['userStatistics' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
             }]);
         }
 

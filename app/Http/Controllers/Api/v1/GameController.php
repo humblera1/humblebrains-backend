@@ -20,7 +20,7 @@ class GameController extends Controller
 
     public function show(Game $game): GameDetailResource
     {
-        return new GameDetailResource($game);
+        return new GameDetailResource($game->loadUserStatistics());
     }
 
     public function index(GamesListRequest $request)
