@@ -15,8 +15,8 @@ class GameTutorialResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'content' => $this->content,
+            'game' => $this->label,
+            'tutorial' => TutorialResource::make($this->tutorial),
         ];
     }
 }

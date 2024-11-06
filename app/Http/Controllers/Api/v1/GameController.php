@@ -9,6 +9,7 @@ use App\Http\Requests\Api\v1\GameRequest;
 use App\Http\Requests\StatisticsRequest;
 use App\Http\Resources\Api\v1\GameDetailResource;
 use App\Http\Resources\Api\v1\GamePreviewResource;
+use App\Http\Resources\Api\v1\GameTutorialResource;
 use App\Models\Game;
 use App\Services\Api\AchievementService;
 use App\Services\Api\GameService;
@@ -38,6 +39,11 @@ class GameController extends Controller
     public function statistics(StatisticsRequest $request, Game $game): array
     {
         return $this->formatResponse($this->service->getUserStatisticsForGame($game, $request->getPeriod()));
+    }
+
+    public function tutorial(Game $game): GameTutorialResource
+    {
+        return GameTutorialResource::make($game);
     }
 
     public function levels(GameRequest $request): array

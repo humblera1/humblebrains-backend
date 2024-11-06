@@ -11,6 +11,7 @@ Route::controller(GameController::class)
         Route::get('/', 'index')->name('index');
         Route::get('/levels', 'levels')->name('levels');
         Route::get('/{game}','show')->name('show');
+        Route::get('/{game}/tutorial', 'tutorial')->name('tutorial');
         Route::get('/{game}/total-achievements', 'totalAchievements')->name('total-achievements')->middleware('auth:sanctum');
         Route::get('/{game}/statistics', 'statistics')->name('statistics')->middleware('auth:sanctum');
     });
