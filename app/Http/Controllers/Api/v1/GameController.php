@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\game\FinishGameRequest;
 use App\Http\Requests\Api\v1\game\GamesListRequest;
-use App\Http\Requests\Api\v1\GameRequest;
 use App\Http\Requests\StatisticsRequest;
 use App\Http\Resources\Api\v1\GameDetailResource;
+use App\Http\Resources\Api\v1\GameLevelsResource;
 use App\Http\Resources\Api\v1\GamePreviewResource;
 use App\Http\Resources\Api\v1\GameTutorialResource;
 use App\Models\Game;
@@ -46,9 +46,9 @@ class GameController extends Controller
         return GameTutorialResource::make($game);
     }
 
-    public function levels(GameRequest $request): array
+    public function levels(Game $game): GameLevelsResource
     {
-        return $this->service->getLevels($request->get('game'));
+        return GameLevelsResource::make($game);
     }
 
     public function finishGame(FinishGameRequest $request)
