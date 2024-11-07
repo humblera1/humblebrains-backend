@@ -28,7 +28,7 @@ class GameController extends Controller
 
     public function index(GamesListRequest $request): AnonymousResourceCollection
     {
-        return GamePreviewResource::collection($this->service->getGamesList($request->get('category_id')));
+        return GamePreviewResource::collection($this->service->getGamesList($request->get('category_ids')));
     }
 
     public function totalAchievements(Game $game): array

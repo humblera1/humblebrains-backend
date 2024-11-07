@@ -45,7 +45,7 @@ final class GameService
 
     }
 
-    public function getGamesList(int $categoryId = null): Collection
+    public function getGamesList(array $categoryIds = null): Collection
     {
         $gamesQuery = Game::with('tags');
 
@@ -55,9 +55,9 @@ final class GameService
             }]);
         }
 
-        if ($categoryId) {
-            $gamesQuery->whereHas('category', function ($query) use ($categoryId) {
-                $query->where('id', $categoryId);
+        if ($categoryIds) {
+            $gamesQuery->whereHas('category', function ($query) use ($categoryIds) {
+                $query->whereIn('id', $categoryIds);
             });
         }
 
