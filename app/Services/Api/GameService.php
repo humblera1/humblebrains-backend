@@ -2,13 +2,17 @@
 
 namespace App\Services\Api;
 
-use App\Entities\game\GameResultDTO;
+use App\Entities\DTOs\game\GameResultDTO;
 use App\Enums\PeriodEnum;
+use App\Events\ProgramCompleted;
 use App\Models\Game;
-use App\Models\GamesHistory;
+use App\Models\History;
+use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 final class GameService
 {
@@ -18,31 +22,77 @@ final class GameService
      */
     public function saveGame(GameResultDTO $gameResulDTO): void
     {
-        $user = Auth::user();
+        DB::transaction(function () use ($gameResulDTO) {
+            /** @var User $user */
+            $user = Auth::user();
 
-        // сохранение в games_history и получение идентификатора
-        $gameHistory = GamesHistory::create([
-            'user_id' => $user->id,
-            'game_id' => $gameResulDTO->gameId,
-            'level' => $gameResulDTO->finishedAtTheLevel,
-            'score' => $gameResulDTO->score,
-        ]);
+            $gameId = Game::where('name', $gameResulDTO->game)->value('id');
 
-        $gameHistoryId = $gameHistory->id;
+            $maxSequenceNumber = History::where('user_id', $user->id)
+                ->where('game_id', $gameId)
+                ->max('game_sequence_number');
 
-        // update max level
-        if (true) {
+            settype($maxSequenceNumber, 'integer');
 
-        }
+            $history = new History();
 
-        if ($gameResulDTO->withinSession) {
-            // загружаем связи: program.session.game
-//            $user->load();
+            $history->user_id = $user->id;
+            $history->game_id = $gameId;
+            $history->score = $gameResulDTO->score;
+            $history->finished_at_level = $gameResulDTO->finishedAtTheLevel;
+            $history->max_unlocked_level = $gameResulDTO->maxUnlockedLevel;
+            $history->mean_reaction_time = $gameResulDTO->meanReactionTime;
+            $history->accuracy = $gameResulDTO->accuracy;
+            $history->game_sequence_number = $maxSequenceNumber + 1;
+            $history->played_at = now();
 
-            // сохранение в session_games
+            $history->save();
 
-        }
+            if ($gameResulDTO->withinSession) {
+                $user->load('latestProgram.sessions.games.game');
 
+                $program = $user->latestProgram;
+
+                if (!$program) {
+                    return; // no uncompleted programs
+                }
+
+                // get first uncompleted session of the program
+                $session = $program->sessions
+                    ->sortBy('id')
+                    ->where('is_completed', false)
+                    ->first();
+
+                if (!$session) {
+                    return; // no uncompleted sessions
+                }
+
+                // get first uncompleted game of the session
+                $game = $session->games
+                    ->sortBy('id')
+                    ->where('played_game_id', null)
+                    ->first();
+
+                if (!$game) {
+                    return; // no uncompleted games
+                }
+
+                $game->game_id = $history->game_id; // If user played another game within session
+                $game->played_game_id = $history->id;
+
+                // complete the session if all games of this session completed
+                if ($session->games->every(fn($game) => $game->played_game_id !== null)) {
+                    $session->is_completed = true;
+                }
+
+                // create checkpoint if all sessions of this program completed
+                if ($program->sessions->every(fn($session) => $session->is_completed)) {
+                    event(new ProgramCompleted());
+                }
+
+                $program->push();
+            }
+        });
     }
 
     public function getGamesList(array $categoryIds = null): Collection

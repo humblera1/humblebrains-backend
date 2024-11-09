@@ -10,6 +10,11 @@ class UserGameStatistic extends Model
 {
     use HasFactory;
 
+    public $fillable = [
+        'user_id',
+        'game_id',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

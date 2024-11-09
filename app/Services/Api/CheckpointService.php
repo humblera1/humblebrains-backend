@@ -4,11 +4,12 @@ namespace App\Services\Api;
 
 use App\Entities\DTOs\checkpoint\StageResultDTO;
 use App\Models\Category;
+use App\Models\Checkpoint;
 use App\Models\CheckpointStage;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Support\Facades\DB;
 
 final class CheckpointService
 {
@@ -36,5 +37,24 @@ final class CheckpointService
         $stage->save();
 
         return $stage;
+    }
+
+    public function createCheckpointForCurrentUser(): void
+    {
+        if ($userId = Auth::id()) {
+            $checkpoint = Checkpoint::create(['user_id' => $userId]);
+            $categories = Category::all();
+
+            $stages = $categories->map(function ($category) use ($checkpoint) {
+                return [
+                    'checkpoint_id' => $checkpoint->id,
+                    'category_id' => $category->id,
+                ];
+            })->toArray();
+
+            $stagesTable = (new CheckpointStage())->getTable();
+
+            DB::table($stagesTable)->insert($stages);
+        }
     }
 }

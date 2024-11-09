@@ -10,6 +10,7 @@ use App\Http\Resources\Api\v1\GameDetailResource;
 use App\Http\Resources\Api\v1\GameLevelsResource;
 use App\Http\Resources\Api\v1\GamePreviewResource;
 use App\Http\Resources\Api\v1\GameTutorialResource;
+use App\Http\Resources\Api\v1\UserSessionProgramResource;
 use App\Models\Game;
 use App\Services\Api\AchievementService;
 use App\Services\Api\GameService;
@@ -36,6 +37,12 @@ class GameController extends Controller
         return $this->formatResponse(app(AchievementService::class, ['game' => $game])->getTotalAchievements());
     }
 
+    // todo: add statistics
+    public function achievements(Game $game): array
+    {
+        return $this->formatResponse(app(AchievementService::class, ['game' => $game])->getAchievements());
+    }
+
     public function statistics(StatisticsRequest $request, Game $game): array
     {
         return $this->formatResponse($this->service->getUserStatisticsForGame($game, $request->getPeriod()));
@@ -54,5 +61,7 @@ class GameController extends Controller
     public function finishGame(FinishGameRequest $request)
     {
         $this->service->saveGame($request->getDTO());
+
+        return UserSessionProgramResource::make(\Auth::user());
     }
 }
