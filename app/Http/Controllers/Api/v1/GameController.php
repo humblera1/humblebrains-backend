@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\game\FinishGameRequest;
 use App\Http\Requests\Api\v1\game\GamesListRequest;
-use App\Http\Requests\Api\v1\GameRequest;
 use App\Http\Requests\StatisticsRequest;
 use App\Http\Resources\Api\v1\GameDetailResource;
+use App\Http\Resources\Api\v1\GameLevelsResource;
 use App\Http\Resources\Api\v1\GamePreviewResource;
+use App\Http\Resources\Api\v1\GameTutorialResource;
+use App\Http\Resources\Api\v1\UserSessionProgramResource;
 use App\Models\Game;
 use App\Services\Api\AchievementService;
 use App\Services\Api\GameService;
@@ -27,7 +29,7 @@ class GameController extends Controller
 
     public function index(GamesListRequest $request): AnonymousResourceCollection
     {
-        return GamePreviewResource::collection($this->service->getGamesList($request->get('category_id')));
+        return GamePreviewResource::collection($this->service->getGamesList($request->get('category_ids')));
     }
 
     public function totalAchievements(Game $game): array
@@ -35,18 +37,31 @@ class GameController extends Controller
         return $this->formatResponse(app(AchievementService::class, ['game' => $game])->getTotalAchievements());
     }
 
+    // todo: add statistics
+    public function achievements(Game $game): array
+    {
+        return $this->formatResponse(app(AchievementService::class, ['game' => $game])->getAchievements());
+    }
+
     public function statistics(StatisticsRequest $request, Game $game): array
     {
         return $this->formatResponse($this->service->getUserStatisticsForGame($game, $request->getPeriod()));
     }
 
-    public function levels(GameRequest $request): array
+    public function tutorial(Game $game): GameTutorialResource
     {
-        return $this->service->getLevels($request->get('game'));
+        return GameTutorialResource::make($game);
+    }
+
+    public function levels(Game $game): GameLevelsResource
+    {
+        return GameLevelsResource::make($game);
     }
 
     public function finishGame(FinishGameRequest $request)
     {
         $this->service->saveGame($request->getDTO());
+
+        return UserSessionProgramResource::make(\Auth::user());
     }
 }

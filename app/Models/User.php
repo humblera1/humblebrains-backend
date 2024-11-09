@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -77,6 +78,21 @@ class User extends Authenticatable
         return $this->throughCheckpoints()->hasStages();
     }
 
+    public function programs(): HasMany
+    {
+        return $this->hasMany(Program::class);
+    }
+
+    public function programSessions(): HasManyThrough
+    {
+        return $this->through('programs')->has('sessions');
+    }
+
+    public function sessionGames(): HasManyThrough
+    {
+        return $this->through('programSessions')->has('games');
+    }
+
     public function history(): HasMany
     {
         return $this->hasMany(History::class);
@@ -85,6 +101,11 @@ class User extends Authenticatable
     public function gameStatistics(): HasMany
     {
         return $this->hasMany(UserGameStatistic::class);
+    }
+
+    public function latestGame(): HasOneThrough
+    {
+        return $this->history()->latestOfMany();
     }
 
     public function latestCheckpoint(): HasOne
@@ -97,6 +118,11 @@ class User extends Authenticatable
         return $this->checkpoints()->one()->ofMany(['id' => 'max'], function(EloquentBuilder $query) {
             $query->where('is_completed', false);
         });
+    }
+
+    public function latestProgram(): HasOne
+    {
+        return $this->programs()->one()->ofMany(['id' => 'max']);
     }
 
     public function latestUncompletedStages(): HasManyThrough

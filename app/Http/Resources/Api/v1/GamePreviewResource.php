@@ -17,6 +17,7 @@ class GamePreviewResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'label' => $this->label,
             'description' => $this->description,
             'image' => $this->main_image,
             'max_level' => $this->max_level,

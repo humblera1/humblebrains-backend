@@ -22,7 +22,8 @@ class GamesListRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => ['exists:categories,id'],
+            'category_ids' => ['array'],
+            'category_ids.*' => ['exists:categories,id'],
         ];
     }
 }

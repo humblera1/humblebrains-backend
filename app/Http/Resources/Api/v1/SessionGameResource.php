@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api\v1;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GameTutorialResource extends JsonResource
+class SessionGameResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,8 +15,8 @@ class GameTutorialResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'game' => $this->label,
-            'tutorial' => TutorialResource::make($this->tutorial),
+            'game' => new GameBadgeResource($this->whenLoaded('game')),
+            'is_played' => $this->played_game_id !== null,
         ];
     }
 }
