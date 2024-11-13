@@ -103,9 +103,9 @@ class User extends Authenticatable
         return $this->hasMany(UserGameStatistic::class);
     }
 
-    public function latestGame(): HasOneThrough
+    public function latestGame(): HasOne
     {
-        return $this->history()->latestOfMany();
+        return $this->history()->one()->latestOfMany();
     }
 
     public function latestCheckpoint(): HasOne

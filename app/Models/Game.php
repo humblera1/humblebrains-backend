@@ -64,6 +64,16 @@ class Game extends Model
         return $this->hasMany(UserGameStatistic::class);
     }
 
+    public function history(): HasMany
+    {
+        return $this->hasMany(History::class);
+    }
+
+    public function lastPlayedGame(): HasOne
+    {
+        return $this->history()->one()->latestOfMany();
+    }
+
     public function propertiesByLevel(): Collection
     {
         return $this->properties()

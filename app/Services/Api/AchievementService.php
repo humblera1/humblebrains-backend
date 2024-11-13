@@ -2,18 +2,27 @@
 
 namespace App\Services\Api;
 
+use App\Enums\Game\AchievementEnum;
 use App\Enums\Game\TotalAchievementEnum;
 use App\Models\Game;
+use App\Models\History;
 use App\Models\Message;
 use App\Models\TotalUser;
 use App\Models\User;
 use App\Models\UserGameStatistic;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 final class AchievementService
 {
+    protected const ACHIEVEMENT_MESSAGE_PREFIX = 'achievement';
     protected const TOTAL_ACHIEVEMENT_MESSAGE_PREFIX = 'total-achievement';
+
+    protected array $prefixMap = [
+        AchievementEnum::class => self::ACHIEVEMENT_MESSAGE_PREFIX,
+        TotalAchievementEnum::class => self::TOTAL_ACHIEVEMENT_MESSAGE_PREFIX,
+    ];
 
     protected const MIN_PERCENT_TO_SHOW_ACHIEVEMENT = 30;
 
@@ -22,6 +31,10 @@ final class AchievementService
     protected User $user;
 
     protected Game $game;
+
+    protected History|null $latestGame = null;
+
+    protected Collection|null $messages = null;
 
     /**
      * @param Game $game
@@ -38,24 +51,124 @@ final class AchievementService
         $this->user = Auth::user();
     }
 
-    public function getTotalAchievements(): array
+    protected function getLatestGame(): History
     {
-        $statisticExists = $this->user->gameStatistics()->where('game_id', $this->game->id)->exists();
-
-        if (!$statisticExists) {
-            return []; // No achievements to generate
+        if ($this->latestGame === null) {
+            $this->latestGame = $this->user->latestGame;
         }
 
-        $this->checkGamesPlayedTotalAchievement();
-        $this->checkOpenedLevelTotalAchievement();
-        $this->checkLowerScorePercentageTotalAchievement();
+        return $this->latestGame;
+    }
+
+    protected function loadMessages(string $achievementEnumClass): void
+    {
+        if (!array_key_exists($achievementEnumClass, $this->prefixMap)) {
+            throw new \InvalidArgumentException('Unsupported enum type');
+        }
+
+        $haystack = $this->prefixMap[$achievementEnumClass] . '%';
+
+        $this->messages = Message::whereLike('key', $haystack)
+            ->get()
+            ->keyBy('key');
+
+    }
+
+    protected function getMessage(TotalAchievementEnum | AchievementEnum $type): Message|null
+    {
+        if (is_null($this->messages)) {
+            $this->loadMessages($type::class);
+        }
+
+        return $this->messages->get($this->getMessageKeyForAchievement($type));
+    }
+
+    public function getTotalAchievements(): array
+    {
+        $this->achievementsList = [];
+
+        $statisticExists = $this->user->gameStatistics()->where('game_id', $this->game->id)->exists();
+
+        if ($statisticExists) {
+            $this->checkGamesPlayedTotalAchievement();
+            $this->checkOpenedLevelTotalAchievement();
+            $this->checkLowerScorePercentageTotalAchievement();
+        }
 
         return $this->achievementsList;
     }
 
+    /**
+     * Generates achievements for last game played by user.
+     *
+     * @return array
+     */
+    public function getAchievements(): array
+    {
+        $this->achievementsList = [];
+
+        $historyExists = $this->user->history()->where('game_id', $this->game->id)->exists();
+
+        if ($historyExists) {
+            $this->checkLevelAchievements();
+            $this->checkLowerScorePercentageAchievement();
+            $this->checkNewRecordAchievement();
+            $this->checkNoMistakesAchievement();
+            $this->checkGamesPlayedAchievement();
+        }
+
+        return $this->achievementsList;
+    }
+
+    public function checkLevelAchievements(): void
+    {
+        // first, check if new level unlocked in last game
+        $latestGame = $this->getLatestGame();
+
+        $maxUnlockedLevel = $this->user->history()
+            ->where('game_id', $this->game->id)
+            ->whereNot('id', $latestGame->id)
+            ->max('max_unlocked_level');
+
+        if ($latestGame->max_unlocked_level <= $maxUnlockedLevel) {
+            return;
+        }
+
+        $this->awardAchievement(AchievementEnum::NewLevelUnlocked);
+
+        // then, if new level unlocked, we check if this level is max level in the game
+        if ($latestGame->max_unlocked_level == $this->game->properties()->max('level')) {
+            $this->awardAchievement(AchievementEnum::MaxLevelUnlocked);
+        }
+    }
+
+    public function checkLowerScorePercentageAchievement(): void
+    {
+
+    }
+
+    public function checkNewRecordAchievement(): void
+    {
+
+    }
+
+    public function checkNoMistakesAchievement(): void
+    {
+        $latestGame = $this->getLatestGame();
+
+        if ((int) $latestGame->accuracy === 100) {
+            $this->awardAchievement(AchievementEnum::NoMistakes);
+        }
+    }
+
+    public function checkGamesPlayedAchievement(): void
+    {
+
+    }
+
     public function checkGamesPlayedTotalAchievement(): void
     {
-        $message = Message::firstWhere('key', $this->getMessageKeyForTotalAchievement(TotalAchievementEnum::GamesPlayed));
+        $message = Message::firstWhere('key', $this->getMessageKeyForAchievement(TotalAchievementEnum::GamesPlayed));
 
         if (!$message) {
             return; // No message for this achievement
@@ -68,7 +181,7 @@ final class AchievementService
 
     public function checkOpenedLevelTotalAchievement(): void
     {
-        $message = Message::firstWhere('key', $this->getMessageKeyForTotalAchievement(TotalAchievementEnum::OpenedLevel));
+        $message = Message::firstWhere('key', $this->getMessageKeyForAchievement(TotalAchievementEnum::OpenedLevel));
 
         if (!$message) {
             return; // No message for this achievement
@@ -81,7 +194,7 @@ final class AchievementService
 
     public function checkLowerScorePercentageTotalAchievement(): void
     {
-        $message = Message::firstWhere('key', $this->getMessageKeyForTotalAchievement(TotalAchievementEnum::LowerScorePercentage));
+        $message = Message::firstWhere('key', $this->getMessageKeyForAchievement(TotalAchievementEnum::LowerScorePercentage));
 
         if (!$message) {
             return; // No message for this achievement
@@ -117,16 +230,20 @@ final class AchievementService
         $this->awardAchievement(TotalAchievementEnum::LowerScorePercentage, $message->getMessagePluralForm($percent));
     }
 
-    protected function getMessageKeyForTotalAchievement(TotalAchievementEnum $type): string
+    protected function getMessageKeyForAchievement(TotalAchievementEnum | AchievementEnum $type): string
     {
-        return  self::TOTAL_ACHIEVEMENT_MESSAGE_PREFIX . ':' . $type->value;
+        return $this->prefixMap[$type::class] . ':' . $type->value;
     }
 
-    public function awardAchievement(TotalAchievementEnum $type, string $message): void
+    public function awardAchievement(TotalAchievementEnum | AchievementEnum $type, string $message = ''): void
     {
+        if (empty($message) && !$message = $this->getMessage($type)) {
+            return; // No message for this achievement
+        }
+
         $this->achievementsList[] = [
             'type' => $type->value,
-            'content' => $message
+            'content' => is_string($message) ? $message : $message->content,
         ];
     }
 }
