@@ -15,4 +15,6 @@ enum AchievementEnum: string
     case NoMistakes = 'no-mistakes';
 
     case GamesPlayed = 'games-played';
+
+    case TargetCompleted = 'target-completed';
 }
