@@ -27,27 +27,75 @@ return [
         ],
     ],
     [
-        'name' => 'correct_answers_before_promotion',
+        'name' => 'correct_answers_before_finish',
         'type' => \App\Enums\TypeEnum::Integer,
         'label' => [
-            'en' => 'Number of correct answers before leveling up',
-            'ru' => 'Количество правильных ответов до повышения уровня',
+            'en' => 'Number of correct answers required to complete the round',
+            'ru' => 'Количество верных ответов, необходимых для завершения раунда',
         ],
         'description' => [
-            'en' => 'After this number of correct answers given in a row, the level will be increased.',
-            'ru' => 'После указанного количества правильных ответов, данных подряд, уровень будет повышен',
+            'en' => 'This is the total number of correct answers expected from the user in the round',
+            'ru' => 'Это общее число верных ответов, которое ожидается от пользователя в текущем раунде игры',
         ],
     ],
     [
-        'name' => 'incorrect_answers_before_demotion',
+        'name' => 'incorrect_answers_before_finish',
         'type' => \App\Enums\TypeEnum::Integer,
         'label' => [
-            'en' => 'Number of incorrect answers before level decreases',
-            'ru' => 'Количество неправильных ответов до понижения уровня',
+            'en' => 'Number of incorrect answers after which the round will end automatically',
+            'ru' => 'Количество неверных ответов, после которых раунд будет завершен автоматически',
         ],
         'description' => [
-            'en' => 'After this number of incorrect answers given in a row, the level will be reduced to the previous one',
-            'ru' => 'После указанного количества неправильных ответов, данных подряд, уровень будет понижен до предыдущего',
+            'en' => 'After a given number of incorrect answers, the round automatically ends',
+            'ru' => 'После данного числа неверных ответов раунд автоматически завершается',
+        ],
+    ],
+    [
+        'name' => 'incorrect_answers_to_fail',
+        'type' => \App\Enums\TypeEnum::Integer,
+        'label' => [
+            'en' => 'Allowable number of incorrect answers',
+            'ru' => 'Допустимое количество неверных ответов',
+        ],
+        'description' => [
+            'en' => 'After this number of incorrect answers, the round will be counted as unsuccessful, but will not be completed automatically',
+            'ru' => 'После данного количества неверных ответов раунд будет засчитан как неуспешный, но не будет завершен автоматически',
+        ],
+    ],
+    [
+        'name' => 'successful_rounds_before_promotion',
+        'type' => \App\Enums\TypeEnum::Integer,
+        'label' => [
+            'en' => 'Number of successful rounds before leveling up',
+            'ru' => 'Количество успешных раундов до повышения уровня',
+        ],
+        'description' => [
+            'en' => 'After this number of successfully completed rounds in a row, the level will be increased.',
+            'ru' => 'После указанного количества успешно завершенных раундов, идущих подряд, уровень будет повышен',
+        ],
+    ],
+    [
+        'name' => 'failed_rounds_before_demotion',
+        'type' => \App\Enums\TypeEnum::Integer,
+        'label' => [
+            'en' => 'Number of failed rounds before level decreases',
+            'ru' => 'Количество неудачных раундов до понижения уровня',
+        ],
+        'description' => [
+            'en' => 'After this number of failed rounds, the level will be reduced to the previous one',
+            'ru' => 'После указанного количества раундов, завершенных с ошибкой, уровень будет понижен до предыдущего',
+        ],
+    ],
+    [
+        'name' => 'points_per_answer',
+        'type' => \App\Enums\TypeEnum::Integer,
+        'label' => [
+            'en' => 'Number of points for correct answer',
+            'ru' => 'Количество очков за верный ответ',
+        ],
+        'description' => [
+            'en' => 'This number of points is given to the user after each correct answer.',
+            'ru' => 'Данное количество очков выдается пользователю после каждого верного ответа',
         ],
     ],
 
@@ -64,18 +112,22 @@ return [
             'ru' => 'Сторона квадрата',
         ],
     ],
-    [
-        'name' => 'cells_amount_to_reproduce',
-        'type' => \App\Enums\TypeEnum::Integer,
-        'label' => [
-            'en' => 'Number of cells to reproduce',
-            'ru' => 'Количество ячеек для запоминания',
-        ],
-        'description' => [
-            'en' => 'Number of cells that need to be remembered and then reproduced',
-            'ru' => 'Количество ячеек, которые необходимо запомнить и воспроизвести',
-        ],
-    ],
+    /**
+     * @deprecated
+     * @see correct_answers_before_finish
+     */
+    //    [
+    //        'name' => 'cells_amount_to_reproduce',
+    //        'type' => \App\Enums\TypeEnum::Integer,
+    //        'label' => [
+    //            'en' => 'Number of cells to reproduce',
+    //            'ru' => 'Количество ячеек для запоминания',
+    //        ],
+    //        'description' => [
+    //            'en' => 'Number of cells that need to be remembered and then reproduced',
+    //            'ru' => 'Количество ячеек, которые необходимо запомнить и воспроизвести',
+    //        ],
+    //    ],
     [
         'name' => 'colors_amount',
         'type' => \App\Enums\TypeEnum::Integer,

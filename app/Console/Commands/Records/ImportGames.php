@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Records;
 
+use App\Services\Api\PointsService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Arr;
@@ -9,13 +10,12 @@ use Illuminate\Support\Facades\DB;
 
 class ImportGames extends AbstractRecordCommand
 {
+    protected PointsService $service;
+
     private string $gamesTable = 'games';
     private string $propertiesTable = 'properties';
-
     private string $categoriesTable = 'categories';
-
     private string $tutorialsTable = 'game_tutorials';
-
     private string $gameLevelPropertiesTable = 'game_level_properties';
 
     /**
@@ -31,6 +31,13 @@ class ImportGames extends AbstractRecordCommand
      * @var string
      */
     protected $description = 'Inserts new games';
+
+    public function __construct(PointsService $service)
+    {
+        parent::__construct();
+
+        $this->service = $service;
+    }
 
     /**
      * Execute the console command.
@@ -93,18 +100,14 @@ class ImportGames extends AbstractRecordCommand
             }
 
             if (!empty($levelsData)) {
-                // get all properties as array of ids
-                $propertyNames = array_keys($levelsData[array_key_first($levelsData)]);
-
-                $propertiesData = DB::table($this->propertiesTable)
+                $propertyIds = DB::table($this->propertiesTable)
                     ->select('id', 'name')
-                    ->whereIn('name', $propertyNames)
-                    ->get();
-
-                $propertyIds = $propertiesData->pluck('id', 'name')->toArray();
+                    ->pluck('id', 'name')
+                    ->toArray();
 
                 // check that all necessary properties exist in the database
-                $nonExistingProperties = array_diff(array_keys($propertyIds), $propertyNames);
+                $propertyNames = array_keys($levelsData[array_key_first($levelsData)]);
+                $nonExistingProperties = array_diff($propertyNames, array_keys($propertyIds));
 
                 if (count($nonExistingProperties) !== 0) {
                     $this->error("Next properties doesn't exists: " . implode(',', $nonExistingProperties) . ", skipping");
@@ -114,8 +117,13 @@ class ImportGames extends AbstractRecordCommand
 
                 // upserting levels
                 $gameLevelPropertiesData = [];
+                $pointsPerLevel = $this->service->calculatePointsPerAnswer($levelsData);
 
                 foreach ($levelsData as $levelNumber => $levelData) {
+                    if (!array_key_exists('points_per_answer', $levelData)) {
+                        $levelData['points_per_answer'] = $pointsPerLevel[$levelNumber];
+                    }
+
                     foreach ($levelData as $property => $value) {
                         $gameLevelPropertiesData[] = [
                             'game_id' => $gameId,
