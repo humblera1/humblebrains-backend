@@ -26,7 +26,7 @@ return new class extends Migration
         Schema::table('session_games', function (Blueprint $table) {
             $table->dropForeign(['program_session_id']);
             $table->renameColumn('program_session_id', 'session_id');
-            $table->foreign('session_id')->references('id')->on('sessions')->onDelete('cascade');
+            $table->foreign('session_id')->references('id')->on('program_sessions')->onDelete('cascade');
         });
     }
 };
