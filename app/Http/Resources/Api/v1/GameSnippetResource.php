@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api\v1;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GameBadgeResource extends JsonResource
+class GameSnippetResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,6 +19,10 @@ class GameBadgeResource extends JsonResource
             'name' => $this->name,
             'label' => $this->label,
             'image' => $this->icon_image,
+            'max_level' => $this->max_level,
+            'user_level' => $this->whenLoaded('userStatistics', function () {
+                return $this->userStatistics->first()->max_level ?? 0;
+            }, 0),
         ];
     }
 }

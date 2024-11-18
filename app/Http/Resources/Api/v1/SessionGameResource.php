@@ -15,8 +15,8 @@ class SessionGameResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'game' => new GameBadgeResource($this->whenLoaded('game')),
-            'is_played' => $this->played_game_id !== null,
+            'game' => new GameSnippetResource($this->whenLoaded('game')),
+            'is_completed' => $this->played_game_id !== null,
         ];
     }
 }

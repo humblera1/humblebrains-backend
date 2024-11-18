@@ -17,7 +17,7 @@ class ProgramResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'session' => $this->whenLoaded('sessions', function () {
+            'last_session' => $this->whenLoaded('sessions', function () {
                 return ProgramSessionResource::make($this->getSession());
             }),
             'is_completed' => $this->whenLoaded('sessions', function () {
@@ -31,8 +31,7 @@ class ProgramResource extends JsonResource
         // searching for first uncompleted session
         $session = $this->sessions
             ->sortBy('id')
-            ->where('is_completed', false)
-            ->first();
+            ->firstWhere('is_completed', false);
 
         // if there is no uncompleted session returns latest program session
         if (!$session) {
