@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Game\StatisticsTypeEnum;
 use App\Enums\PeriodEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,11 +26,17 @@ class StatisticsRequest extends FormRequest
     {
         return [
             'period' => [Rule::enum(PeriodEnum::class)],
+            'type' => [Rule::enum(StatisticsTypeEnum::class)],
         ];
     }
 
     public function getPeriod(): PeriodEnum
     {
         return PeriodEnum::from($this->validated('period', 'all'));
+    }
+
+    public function getType(): StatisticsTypeEnum
+    {
+        return StatisticsTypeEnum::from($this->validated('type', 'all'));
     }
 }

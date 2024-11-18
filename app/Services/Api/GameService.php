@@ -5,6 +5,7 @@ namespace App\Services\Api;
 use App\Entities\DTOs\game\GameResultDTO;
 use App\Entities\DTOs\game\UserGameLevelsDTO;
 use App\Entities\DTOs\game\UserGameStatisticsDTO;
+use App\Enums\Game\StatisticsTypeEnum;
 use App\Enums\PeriodEnum;
 use App\Models\Game;
 use App\Models\History;
@@ -18,12 +19,12 @@ use Illuminate\Support\Facades\DB;
 final class GameService
 {
     private const STATISTICS_RECORD_LIMIT = 100;
-
     private const REDUCTION_FACTOR = 0.25;
-
     private const GAME_DURATION = 10;
 
     /**
+     * Save the game result.
+     *
      * @param GameResultDTO $gameResulDTO
      * @return void
      */
@@ -61,6 +62,12 @@ final class GameService
         });
     }
 
+    /**
+     * Get a list of games, optionally filtered by category IDs.
+     *
+     * @param array|null $categoryIds
+     * @return Collection
+     */
     public function getGamesList(array $categoryIds = null): Collection
     {
         $gamesQuery = Game::with('tags');
@@ -80,6 +87,12 @@ final class GameService
         return $gamesQuery->get();
     }
 
+    /**
+     * Get game levels for the current user.
+     *
+     * @param Game $game
+     * @return UserGameLevelsDTO
+     */
     public function getGameLevelsForCurrentUser(Game $game): UserGameLevelsDTO
     {
         $userStatistics = $game->userStatistics()->where('user_id', \Auth::id())->first();
@@ -101,20 +114,39 @@ final class GameService
         );
     }
 
-    public function getAllUserStatisticsForGame(Game $game): UserGameStatisticsDTO
+    /**
+     * Get user statistics for a specific game, type, and period.
+     *
+     * @param Game $game
+     * @param StatisticsTypeEnum $type
+     * @param PeriodEnum $period
+     * @return UserGameStatisticsDTO
+     */
+    public function getUserStatistics(Game $game, StatisticsTypeEnum $type, PeriodEnum $period): UserGameStatisticsDTO
     {
-        $statistics = Auth::user()->history()
-            ->where('game_id', $game->id)
-            ->select(['game_sequence_number', 'score', 'accuracy'])
-            ->latest('id')
+        $statisticsQuery = Auth::user()->history()->where('game_id', $game->id)->select('game_sequence_number');
+
+        if ($dateRange = $this->getDateRangeForPeriod($period)) {
+            $statisticsQuery->whereBetween('played_at', $dateRange);
+        }
+
+        switch ($type) {
+            case StatisticsTypeEnum::Score:
+                $statisticsQuery->addSelect('score');
+                break;
+            case StatisticsTypeEnum::Accuracy:
+                $statisticsQuery->addSelect('accuracy');
+                break;
+            case StatisticsTypeEnum::All:
+                $statisticsQuery->addSelect(['score', 'accuracy']);
+                break;
+        }
+
+        $statistics = $statisticsQuery->latest('id')
             ->take(self::STATISTICS_RECORD_LIMIT)
             ->get()
             ->reverse()
             ->toArray();
-
-        if (empty($statistics)) {
-            return new UserGameStatisticsDTO();
-        }
 
         return new UserGameStatisticsDTO(
             games: array_column($statistics, 'game_sequence_number'),
@@ -123,27 +155,14 @@ final class GameService
         );
     }
 
-    public function getUserStatisticsForGame(Game $game, PeriodEnum $period = PeriodEnum::All): array
-    {
-        $statisticsQuery = Auth::user()->history()->where('game_id', $game->id);
-
-        if (!$statisticsQuery->exists()) {
-            return []; // There is no statistics at all
-        }
-
-        if ($dateRange = $this->getDateRangeForPeriod($period)) {
-            $statisticsQuery->whereBetween('played_at', $dateRange);
-        }
-
-        $statistics = $statisticsQuery->select(['game_sequence_number as number', 'score'])->pluck('score', 'number')->toArray();
-
-        return [
-            'xAsis' => array_merge([0], array_keys($statistics)),
-            'yAsis' => array_merge([0], $statistics),
-        ];
-
-    }
-
+    /**
+     * Calculate the target score for the user based on statistics and opened levels.
+     *
+     * @param UserGameStatistic|null $userStatistics
+     * @param array $levelsArray
+     * @param int $maxLevel
+     * @return int
+     */
     private function calculateTarget(UserGameStatistic|null $userStatistics, array $levelsArray, int $maxLevel): int
     {
         if ($userStatistics) {
@@ -161,7 +180,7 @@ final class GameService
     }
 
     /**
-     * Logic for adjusting the goal for the upcoming game.
+     * Logic for adjusting target for the upcoming game.
      * In the future, method can be improved
      *
      * @param int $rawTarget
@@ -175,6 +194,12 @@ final class GameService
         return max((int) $adjustedTarget, 10);
     }
 
+    /**
+     * Get the date range for a given period.
+     *
+     * @param PeriodEnum $period
+     * @return array|null
+     */
     private function getDateRangeForPeriod(PeriodEnum $period): ?array
     {
         $endDate = Carbon::now();

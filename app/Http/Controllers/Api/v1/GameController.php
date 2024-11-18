@@ -7,16 +7,13 @@ use App\Http\Requests\Api\v1\game\FinishGameRequest;
 use App\Http\Requests\Api\v1\game\GamesListRequest;
 use App\Http\Requests\StatisticsRequest;
 use App\Http\Resources\Api\v1\GameDetailResource;
-use App\Http\Resources\Api\v1\GameLevelsResource;
 use App\Http\Resources\Api\v1\GamePreviewResource;
 use App\Http\Resources\Api\v1\GameTutorialResource;
 use App\Http\Resources\Api\v1\UserSessionProgramResource;
 use App\Models\Game;
-use App\Models\User;
 use App\Services\Api\AchievementService;
 use App\Services\Api\GameService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Auth;
 
 class GameController extends Controller
 {
@@ -41,13 +38,12 @@ class GameController extends Controller
 
     public function achievements(Game $game): array
     {
-        Auth::login(User::find(33));
         return $this->formatResponse(app(AchievementService::class, ['game' => $game])->getAchievements());
     }
 
     public function statistics(StatisticsRequest $request, Game $game): array
     {
-        return $this->formatResponse($this->service->getUserStatisticsForGame($game, $request->getPeriod()));
+        return $this->formatResponse($this->service->getUserStatistics($game, $request->getType(), $request->getPeriod()));
     }
 
     public function tutorial(Game $game): GameTutorialResource
@@ -55,9 +51,9 @@ class GameController extends Controller
         return GameTutorialResource::make($game);
     }
 
-    public function levels(Game $game): GameLevelsResource
+    public function levels(Game $game): array
     {
-        return GameLevelsResource::make($game);
+        return $this->formatResponse($this->service->getGameLevelsForCurrentUser($game));
     }
 
     public function finishGame(FinishGameRequest $request)
