@@ -12,8 +12,8 @@ return [
         'en' => 'Final level unlocked!',
     ],
     AchievementEnum::LowerScorePercentage->value => [
-        'ru' => 'Вы лучше {1} :count% игрока|[2,3,4] :count% игроков|[5,*] :count% игроков',
-        'en' => 'You are better than {1} :count% of players|[2,*] :count% of players',
+        'ru' => '{1}Вы лучше :count% игрока|[2,3,4]Вы лучше :count% игроков|[5,*]Вы лучше :count% игроков',
+        'en' => '{1}You are better than :count% of players|[2,*]You are better than :count% of players',
     ],
     AchievementEnum::NewRecord->value => [
         'ru' => 'Поставлен новый рекорд!',

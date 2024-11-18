@@ -8,8 +8,8 @@ return [
         'en' => '{1} :count level opened|[2,*] :count levels opened',
     ],
     TotalAchievementEnum::LowerScorePercentage->value => [
-        'ru' => 'Лучше {1} :count% игрока|[2,3,4] :count% игроков|[5,*] :count% игроков',
-        'en' => 'Better than {1} :count% of players|[2,*] :count% of players',
+        'ru' => '{1}Вы лучше :count% игрока|[2,3,4]Вы лучше :count% игроков|[5,*]Вы лучше :count% игроков',
+        'en' => '{1}You are better than :count% of players|[2,*]You are better than :count% of players',
     ],
     TotalAchievementEnum::GamesPlayed->value => [
         'ru' => '{1} :count тренировка завершена|[2,3,4] :count тренировки завершены|[5,*] :count тренировок завершено',

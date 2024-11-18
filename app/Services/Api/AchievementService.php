@@ -13,11 +13,12 @@ use App\Models\UserGameStatistic;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 final class AchievementService
 {
-    protected const ACHIEVEMENT_MESSAGE_PREFIX = 'achievement';
-    protected const TOTAL_ACHIEVEMENT_MESSAGE_PREFIX = 'total-achievement';
+    protected const ACHIEVEMENT_MESSAGE_PREFIX = 'achievements';
+    protected const TOTAL_ACHIEVEMENT_MESSAGE_PREFIX = 'total-achievements';
 
     protected array $prefixMap = [
         AchievementEnum::class => self::ACHIEVEMENT_MESSAGE_PREFIX,
@@ -115,6 +116,7 @@ final class AchievementService
             $this->checkNewRecordAchievement();
             $this->checkNoMistakesAchievement();
             $this->checkGamesPlayedAchievement();
+            $this->checkTargetCompletedAchievement();
         }
 
         return $this->achievementsList;
@@ -144,12 +146,65 @@ final class AchievementService
 
     public function checkLowerScorePercentageAchievement(): void
     {
+        $message = Message::firstWhere('key', $this->getMessageKeyForAchievement(AchievementEnum::LowerScorePercentage));
 
+        if (!$message) {
+            return; // No message for this achievement
+        }
+
+        $totalUsersCount = TotalUser::value('count');
+
+        if ($totalUsersCount === 0) {
+            return; // Application error
+        }
+
+        $latestGame = $this->getLatestGame();
+        $maxLevel = $this->user->gameStatistics->where('game_id', $this->game->id)->value('max_level');
+
+        $startsFromFinalLevel = $latestGame->started_from_level === $maxLevel;
+
+        $higherScoreUsersQuery = History::select(DB::raw('user_id, AVG(score)'))
+            ->where('game_id', $this->game->id)
+            ->whereNot('user_id', $this->user->id)
+            ->groupBy('user_id')
+            ->having(DB::raw('AVG(score)'), '>', $latestGame->score);
+
+        if ($startsFromFinalLevel) {
+            $higherScoreUsersQuery->where('started_from_level', $maxLevel);
+        } else {
+            $higherScoreUsersQuery->where('game_sequence_number', $latestGame->game_sequence_number);
+        }
+
+        $higherScoreUsersCount = $higherScoreUsersQuery->count();
+
+        if ($higherScoreUsersCount === 0) {
+            $this->awardAchievement(AchievementEnum::LowerScorePercentage, $message->getMessagePluralForm(99));
+
+            return;
+        }
+
+        $percent = 100 - round(($higherScoreUsersCount / $totalUsersCount) * 100);
+        $roundedPercent = floor($percent / 10) * 10;
+
+        if ($roundedPercent > 100) {
+            return; // ???
+        }
+
+        if ($roundedPercent < self::MIN_PERCENT_TO_SHOW_ACHIEVEMENT) {
+            return;
+        }
+
+        $this->awardAchievement(AchievementEnum::LowerScorePercentage, $message->getMessagePluralForm($roundedPercent));
     }
 
     public function checkNewRecordAchievement(): void
     {
+        $latestGame = $this->getLatestGame();
+        $oldRecord = $this->user->gameStatistics->where('game_id', $this->game->id)->value('max_score');
 
+        if ($latestGame->score > $oldRecord) {
+            $this->awardAchievement(AchievementEnum::NewRecord);
+        }
     }
 
     public function checkNoMistakesAchievement(): void
@@ -163,7 +218,24 @@ final class AchievementService
 
     public function checkGamesPlayedAchievement(): void
     {
+        $message = Message::firstWhere('key', $this->getMessageKeyForAchievement(AchievementEnum::GamesPlayed));
 
+        if (!$message) {
+            return; // No message for this achievement
+        }
+
+        $latestGame = $this->getLatestGame();
+
+        $this->awardAchievement(AchievementEnum::GamesPlayed, $message->getMessagePluralForm($latestGame->game_sequence_number));
+    }
+
+    public function checkTargetCompletedAchievement(): void
+    {
+        $latestGame = $this->getLatestGame();
+
+        if ($latestGame->is_target_completed) {
+            $this->awardAchievement(AchievementEnum::TargetCompleted);
+        }
     }
 
     public function checkGamesPlayedTotalAchievement(): void
@@ -206,28 +278,30 @@ final class AchievementService
             return; // Application error
         }
 
-        $currentUserScoreRatio = $this->user->gameStatistics()->selectRaw('total_score / played_games_amount as score_ratio')->value('score_ratio');
+        $currentUserMaxScore = $this->user->gameStatistics()->value('max_score');
 
-        $lowerScoreUsersCount = UserGameStatistic::where('game_id', $this->game->id)
-            ->where('user_id', '!=', $this->user->id)
-            ->whereRaw('total_score / played_games_amount < ?', [$currentUserScoreRatio])
+        $higherScoreUsersCount = UserGameStatistic::where('game_id', $this->game->id)
+            ->whereNot('user_id', $this->user->id)
+            ->where('max_score', '>', $currentUserMaxScore)
             ->count();
 
-        if ($lowerScoreUsersCount === 0) {
-            return; // No users to compare scores with
+        if ($higherScoreUsersCount === 0) {
+            $this->awardAchievement(TotalAchievementEnum::LowerScorePercentage, $message->getMessagePluralForm(99));
         }
 
-        $percent = (integer) round(($lowerScoreUsersCount / $totalUsersCount) * 100);
+        $percent = 100 - round(($higherScoreUsersCount / $totalUsersCount) * 100);
+        $roundedPercent = floor($percent / 10) * 10;
 
-        if ($percent > 100) {
+
+        if ($roundedPercent > 100) {
             return; // ???
         }
 
-        if ($percent < self::MIN_PERCENT_TO_SHOW_ACHIEVEMENT) {
+        if ($roundedPercent < self::MIN_PERCENT_TO_SHOW_ACHIEVEMENT) {
             return;
         }
 
-        $this->awardAchievement(TotalAchievementEnum::LowerScorePercentage, $message->getMessagePluralForm($percent));
+        $this->awardAchievement(TotalAchievementEnum::LowerScorePercentage, $message->getMessagePluralForm($roundedPercent));
     }
 
     protected function getMessageKeyForAchievement(TotalAchievementEnum | AchievementEnum $type): string
