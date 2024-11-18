@@ -53,6 +53,21 @@ class User extends Authenticatable
         return $this->load('latestCheckpoint.stages.category');
     }
 
+    public function loadProgramRelations(): self
+    {
+        return $this->load([
+            'latestProgram' => [
+                'sessions' => [
+                    'games' => [
+                        'game' => [
+                            'userStatistics'
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
     public function loadLatestCheckpointRelations(): self
     {
         return $this->load([

@@ -10,9 +10,7 @@ use Illuminate\Validation\Rule;
 
 class FinishGameRequest extends FormRequest implements RequestDTOInterface
 {
-    private array $availableLevels = [];
-
-    private function getAvailableLevels(string $gameName)
+    private function getAvailableLevels(string $gameName): array
     {
         return Game::where('name', $gameName)
             ->join('game_level_properties', 'games.id', '=', 'game_level_properties.game_id')
@@ -40,24 +38,30 @@ class FinishGameRequest extends FormRequest implements RequestDTOInterface
         return [
             'game' => ['required', 'string', 'exists:games,name'],
             'score' => ['required', 'integer', 'min:0'],
+            'started_from_level' => ['required', 'integer', Rule::in($availableLevels)],
             'finished_at_level' => ['required', 'integer', Rule::in($availableLevels)],
             'max_unlocked_level' => ['required', 'integer', Rule::in($availableLevels)],
             'within_session' => ['required', 'boolean'],
             'mean_reaction_time' => ['required', 'decimal:2'],
             'accuracy' => ['required', 'decimal:1', 'min:0', 'max:100'],
+            'correct_answers_amount' => ['required', 'integer', 'min:0'],
+            'is_target_completed' => ['required', 'boolean'],
         ];
     }
 
     public function getDTO(): GameResultDTO
     {
         return new GameResultDTO(
-            $this->validated('game'),
-            $this->validated('score'),
-            $this->validated('finished_at_level'),
-            $this->validated('max_unlocked_level'),
-            $this->validated('within_session'),
-            $this->validated('mean_reaction_time'),
-            $this->validated('accuracy'),
+            game: $this->validated('game'),
+            score: $this->validated('score'),
+            startedFromLevel: $this->validated('started_from_level'),
+            finishedAtLevel: $this->validated('finished_at_level'),
+            maxUnlockedLevel: $this->validated('max_unlocked_level'),
+            withinSession: $this->validated('within_session'),
+            meanReactionTime: $this->validated('mean_reaction_time'),
+            accuracy: $this->validated('accuracy'),
+            correctAnswersAmount: $this->validated('correct_answers_amount'),
+            isTargetCompleted: $this->validated('is_target_completed'),
         );
     }
 }
