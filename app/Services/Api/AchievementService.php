@@ -287,6 +287,8 @@ final class AchievementService
 
         if ($higherScoreUsersCount === 0) {
             $this->awardAchievement(TotalAchievementEnum::LowerScorePercentage, $message->getMessagePluralForm(99));
+
+            return;
         }
 
         $percent = 100 - round(($higherScoreUsersCount / $totalUsersCount) * 100);
