@@ -57,4 +57,15 @@ final class CheckpointService
             DB::table($stagesTable)->insert($stages);
         }
     }
+
+    public function finishCheckpoint(): void
+    {
+        $checkpoint = Auth::user()->latestUncompletedCheckpoint;
+
+        if ($checkpoint) {
+            $checkpoint->is_completed = true;
+
+            $checkpoint->save();
+        }
+    }
 }

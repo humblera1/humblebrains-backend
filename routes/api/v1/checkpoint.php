@@ -8,4 +8,5 @@ Route::controller(CheckpointController::class)
     ->name('checkpoint.')
     ->group(function () {
         Route::post('/finish-stage', 'finishStage')->name('finish-stage')->middleware('auth:sanctum');
+        Route::post('/finish-checkpoint', 'finishCheckpoint')->name('finish-checkpoint')->middleware('auth:sanctum');
     });

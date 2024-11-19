@@ -66,7 +66,7 @@ class ProgramService
         for ($i = 0; $i < $sessionsAmount; $i++) {
             for ($j = 0; $j < $gamesInSessionAmount; $j++) {
                 $games[] = [
-                    'session_id' => $sessionIds[$i],
+                    'program_session_id' => $sessionIds[$i],
                     'game_id' => array_rand($availableGameIds),
                 ];
             }
