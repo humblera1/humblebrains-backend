@@ -37,7 +37,7 @@ class FinishStageRequest extends FormRequest implements RequestDTOInterface
     {
         return new StageResultDTO(
             $this->validated('category'),
-            $this->validated('name'),
+            $this->validated('score'),
         );
     }
 }
