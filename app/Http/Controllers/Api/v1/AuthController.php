@@ -29,7 +29,7 @@ class AuthController extends Controller
             $this->service->registerAndLoginAnonymousUser();
         }
 
-        return new UserResource(Auth::user()->loadWithRelations());
+        return new UserResource(Auth::user()->loadAllRelations());
     }
 
     /**

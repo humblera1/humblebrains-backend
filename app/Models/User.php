@@ -53,10 +53,19 @@ class User extends Authenticatable
         return $this->load('latestCheckpoint.stages.category');
     }
 
+    public function loadAllRelations(): self
+    {
+        $this->loadLatestCheckpointRelations();
+        $this->loadProgramRelations();
+
+        return $this;
+    }
+
     public function loadProgramRelations(): self
     {
         return $this->load([
             'latestProgram' => [
+                'category',
                 'sessions' => [
                     'games' => [
                         'game' => [
@@ -71,7 +80,7 @@ class User extends Authenticatable
     public function loadLatestCheckpointRelations(): self
     {
         return $this->load([
-            'latestUncompletedCheckpoint' => [
+            'latestCheckpoint' => [
                  'stages' => [
                       'category',
                      ],
