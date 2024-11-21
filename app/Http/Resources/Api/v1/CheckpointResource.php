@@ -17,6 +17,7 @@ class CheckpointResource extends JsonResource
         return [
             'id' => $this->id,
             'is_completed' => $this->is_completed,
+            'updated_at' => $this->updated_at,
             'stages' => CheckpointStageResource::collection($this->whenLoaded('stages')),
         ];
     }
