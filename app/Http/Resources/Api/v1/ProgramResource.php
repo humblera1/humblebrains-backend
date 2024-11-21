@@ -17,16 +17,17 @@ class ProgramResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'last_session' => $this->whenLoaded('sessions', function () {
-                return ProgramSessionResource::make($this->getSession());
-            }),
-            'is_completed' => $this->whenLoaded('sessions', function () {
-                return $this->isCompleted();
-            }),
+            'category' => new CategoryResource($this->whenLoaded('category')),
+            $this->mergeWhen($this->whenLoaded('sessions'), [
+                'sessions_amount' => $this->sessions->count(),
+                'completed_sessions_amount' => $this->sessions->where('is_completed', true)->count(),
+                'current_session' => ProgramSessionResource::make($this->getCurrentSession()),
+                'is_completed' => $this->isCompleted(),
+            ]),
         ];
     }
 
-    protected function getSession(): ProgramSession
+    protected function getCurrentSession(): ProgramSession
     {
         // searching for first uncompleted session
         $session = $this->sessions

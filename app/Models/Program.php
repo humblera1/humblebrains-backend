@@ -21,9 +21,9 @@ class Program extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function priorityCategory(): BelongsTo
+    public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'priority_category_id');
     }
 
     public function sessions(): HasMany
