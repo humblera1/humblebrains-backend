@@ -6,7 +6,6 @@ use App\Entities\DTOs\checkpoint\StageResultDTO;
 use App\Models\Category;
 use App\Models\Checkpoint;
 use App\Models\CheckpointStage;
-use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,13 +22,10 @@ final class CheckpointService
      */
     public function saveStage(StageResultDTO $stageResultDTO): CheckpointStage
     {
-        /** @var User $user */
-        $user = Auth::user();
-
         $categorySubquery = Category::select('id')->where('name', $stageResultDTO->categoryName);
 
         /** @var CheckpointStage $stage */
-        $stage = $user->latestUncompletedStages()->where('category.name', $categorySubquery)->firstOrFail();
+        $stage = Auth::user()->latestUncompletedStages()->with('category')->where('category_id', $categorySubquery)->firstOrFail();
 
         $stage->score = $stageResultDTO->score;
         $stage->is_completed = true;
