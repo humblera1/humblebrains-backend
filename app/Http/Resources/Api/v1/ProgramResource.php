@@ -24,6 +24,7 @@ class ProgramResource extends JsonResource
                 'current_session' => ProgramSessionResource::make($this->getCurrentSession()),
                 'is_completed' => $this->isCompleted(),
             ]),
+            'createdAt' => $this->created_at->format('Y-m-d'),
         ];
     }
 
