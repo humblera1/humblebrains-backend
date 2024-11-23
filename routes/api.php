@@ -21,5 +21,6 @@ Route::name('api.')
         require __DIR__ . $prefix . '/icons.php';
         require __DIR__ . $prefix . '/words.php';
         require __DIR__ . $prefix . '/categories.php';
+        require __DIR__ . $prefix . '/files.php';
     });
 });
