@@ -3,11 +3,16 @@
 namespace App\Services\Api;
 
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 final class AuthService
 {
@@ -160,6 +165,42 @@ final class AuthService
 
                 return $query->where('username', $usermail);
             };
+        }
+    }
+
+    /**
+     * @param array $credentials
+     * @return void
+     */
+    public function sendPasswordResetLink(array $credentials): void
+    {
+        $status = Password::sendResetLink($credentials);
+
+        if ($status !== Password::RESET_LINK_SENT) {
+            throw new BadRequestException(__($status));
+        }
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function resetPassword(array $data): void
+    {
+        $status = Password::reset(
+            $data,
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw new BadRequestException(__($status));
         }
     }
 

@@ -6,11 +6,12 @@ use App\Exceptions\Validation\WithPlainErrorsValidationException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\LoginUserRequest;
 use App\Http\Requests\Api\v1\RegisterUserRequest;
+use App\Http\Requests\Api\v1\user\ForgotPasswordRequest;
+use App\Http\Requests\Api\v1\user\ResetPasswordRequest;
 use App\Http\Resources\Api\v1\UserResource;
 use App\Models\Traits\Controllers\withResponseHelpers;
 use App\Services\Api\AuthService;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -79,5 +80,15 @@ class AuthController extends Controller
             : $this->service->registerAndLoginFullFledgedUser($credentials);
 
         return new UserResource(Auth::user()->loadWithRelations());
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request): void
+    {
+        $this->service->sendPasswordResetLink($request->validated());
+    }
+
+    public function resetPassword(ResetPasswordRequest $request): void
+    {
+        $this->service->resetPassword($request->validated());
     }
 }
