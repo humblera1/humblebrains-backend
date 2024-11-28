@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Api\v1;
+namespace App\Http\Requests\Api\v1\user;
 
 use App\Models\Traits\Requests\WithPlainErrors;
 use Illuminate\Foundation\Http\FormRequest;

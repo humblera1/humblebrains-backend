@@ -26,11 +26,10 @@ class UserResource extends JsonResource
     public function getPersonalData(): array
     {
         return [
-            'first_name' => $this->first_name,
-            'second_name' => $this->second_name,
+            'name' => $this->name,
             'username' => $this->username,
             'email' => $this->email,
-            'email_verified_at' => (bool) $this->email_verified_at,
+            'is_email_verified' => (bool) $this->email_verified_at,
         ];
     }
 }

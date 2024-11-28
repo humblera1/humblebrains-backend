@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Api\v1;
+namespace App\Http\Requests\Api\v1\user;
 
 use App\Models\Traits\Requests\WithPlainErrors;
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,8 +28,7 @@ class RegisterUserRequest extends FormRequest
             'email' => ['required', 'unique:users','email:255'],
             'password' => ['required', 'string'],
             'username' => ['nullable', 'unique:users', 'string:255'],
-            'first_name' => ['nullable', 'string:255'],
-            'second_name' => ['nullable', 'string:255'],
+            'name' => ['nullable', 'string:255'],
         ];
     }
 }

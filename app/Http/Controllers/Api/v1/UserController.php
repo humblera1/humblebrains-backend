@@ -28,30 +28,26 @@ class UserController extends Controller
         return new UserResource(Auth::user()->loadAllRelations());
     }
 
-    public function setAvatar(FileUploadRequest $request)
+    public function setAvatar(FileUploadRequest $request): UserResource
     {
-        $file = $request->file('file');
+        $this->service->setAvatar($request->file('file'));
 
-        $filename = uniqid() . '.' . $file->getClientOriginalExtension();
-
-        $path = $file->storeAs('avatars', $filename, 'public');
-
-        // $user->avatar_path = $path; $user->save();
-
-        return response()->json(['message' => 'Avatar uploaded successfully', 'path' => $path], 200);
+        return new UserResource(Auth::user());
     }
 
     public function update(UserUpdateRequest $request): UserResource
     {
-        return new UserResource($this->service->update($request->validated()));
+        $this->service->update($request->validated());
+
+        return new UserResource(Auth::user());
     }
 
-    public function sendEmailVerificationNotification(Request $request)
+    public function sendEmailVerificationNotification(Request $request): void
     {
         $request->user()->sendEmailVerificationNotification();
     }
 
-    public function verifyEmail(EmailVerificationRequest $request)
+    public function verifyEmail(EmailVerificationRequest $request): void
     {
         $request->fulfill();
     }

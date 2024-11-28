@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Api\v1;
 
-use App\Exceptions\Validation\WithPlainErrorsValidationException;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\v1\LoginUserRequest;
-use App\Http\Requests\Api\v1\RegisterUserRequest;
 use App\Http\Requests\Api\v1\user\ChangePasswordRequest;
 use App\Http\Requests\Api\v1\user\ForgotPasswordRequest;
+use App\Http\Requests\Api\v1\user\LoginUserRequest;
+use App\Http\Requests\Api\v1\user\RegisterUserRequest;
 use App\Http\Requests\Api\v1\user\ResetPasswordRequest;
 use App\Http\Resources\Api\v1\UserResource;
 use App\Models\Traits\Controllers\withResponseHelpers;
@@ -33,22 +32,19 @@ class AuthController extends Controller
      */
     public function login(LoginUserRequest $request): UserResource
     {
-        /** @throws AuthorizationException */
         Gate::authorize('login');
 
-        /** @throws ValidationException */
         $credentials = $request->validated();
 
         $this->service->prepareCredentialsToLogin($credentials);
 
         if (!Auth::attempt($credentials)) {
-            /** @throws WithPlainErrorsValidationException */
             $this->responseWithPlainValidationError('The provided credentials do not match our records');
         }
 
         $request->session()->regenerate();
 
-        return new UserResource(Auth::user()->loadWithRelations());
+        return new UserResource(Auth::user()->loadAllRelations());
     }
 
     /**
@@ -59,19 +55,15 @@ class AuthController extends Controller
      */
     public function register(RegisterUserRequest $request): UserResource
     {
-        /** @throws AuthorizationException */
         Gate::authorize('register');
-
-        /** @throws ValidationException */
-        $credentials = $request->validated();
 
         // Вторая ветка недостижима, поскольку пока существует только веб-приложение. Пока...
         // Сценарий работы с веб-приложением не подразумевает существования не-анонимных пользователей
         Auth::check()
-            ? $this->service->promoteCurrentUserToFullFledged($credentials)
-            : $this->service->registerAndLoginFullFledgedUser($credentials);
+            ? $this->service->promoteCurrentUserToFullFledged($request->validated())
+            : $this->service->registerAndLoginFullFledgedUser($request->validated());
 
-        return new UserResource(Auth::user()->loadWithRelations());
+        return new UserResource(Auth::user()->loadAllRelations());
     }
 
     public function changePassword(ChangePasswordRequest $request)
