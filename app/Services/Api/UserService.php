@@ -16,14 +16,4 @@ final class UserService
 
         return $user;
     }
-
-    public function changePassword(ChangePasswordDTO $changePasswordDTO): void
-    {
-        $user = Auth::user();
-
-        Auth::logoutOtherDevices($changePasswordDTO->currentPassword);
-
-        $user->password = $changePasswordDTO->newPassword;
-        $user->save();
-    }
 }

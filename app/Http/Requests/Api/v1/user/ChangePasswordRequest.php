@@ -4,11 +4,14 @@ namespace App\Http\Requests\Api\v1\user;
 
 use App\Entities\DTOs\user\ChangePasswordDTO;
 use App\Interfaces\Request\RequestDTOInterface;
+use App\Models\Traits\Requests\WithPlainErrors;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
 class ChangePasswordRequest extends FormRequest implements RequestDTOInterface
 {
+    use WithPlainErrors;
+
     /**
      * Determine if the user is authorized to make this request.
      */

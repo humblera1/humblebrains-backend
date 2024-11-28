@@ -2,6 +2,7 @@
 
 namespace App\Services\Api;
 
+use App\Entities\DTOs\user\ChangePasswordDTO;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
@@ -166,6 +167,20 @@ final class AuthService
                 return $query->where('username', $usermail);
             };
         }
+    }
+
+    /**
+     * @param ChangePasswordDTO $changePasswordDTO
+     * @return void
+     */
+    public function changePassword(ChangePasswordDTO $changePasswordDTO): void
+    {
+        $user = Auth::user();
+
+        Auth::logoutOtherDevices($changePasswordDTO->currentPassword);
+
+        $user->password = $changePasswordDTO->newPassword;
+        $user->save();
     }
 
     /**

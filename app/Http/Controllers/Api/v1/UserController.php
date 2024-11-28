@@ -4,16 +4,27 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\v1\file\FileUploadRequest;
-use App\Http\Requests\Api\v1\user\ChangePasswordRequest;
 use App\Http\Requests\Api\v1\user\UserUpdateRequest;
 use App\Http\Resources\Api\v1\UserResource;
+use App\Services\Api\AuthService;
 use App\Services\Api\UserService;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     public function __construct(
-        protected UserService $service
+        protected UserService $service,
+        protected AuthService $authService,
     ) {}
+
+    public function me(): UserResource
+    {
+        if (!Auth::check()) {
+            $this->authService->registerAndLoginAnonymousUser();
+        }
+
+        return new UserResource(Auth::user()->loadAllRelations());
+    }
 
     public function setAvatar(FileUploadRequest $request)
     {
@@ -31,10 +42,5 @@ class UserController extends Controller
     public function update(UserUpdateRequest $request): UserResource
     {
         return new UserResource($this->service->update($request->validated()));
-    }
-
-    public function changePassword(ChangePasswordRequest $request)
-    {
-        $this->service->changePassword($request->getDTO());
     }
 }

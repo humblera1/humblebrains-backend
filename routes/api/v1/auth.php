@@ -9,7 +9,7 @@ Route::controller(AuthController::class)
     ->group(function () {
         Route::post('/register', 'register')->name('register');
         Route::post('/login', 'login')->name('login');
-        Route::post('/change-password', 'changePassword')->name('change-password');
-        Route::post('/forgot-password', 'forgotPassword')->name('forgot-password');
-        Route::post('/reset-password', 'resetPassword')->name('reset-password');
+        Route::post('/change-password', 'changePassword')->name('change-password')->middleware('auth:sanctum');
+        Route::post('/forgot-password', 'forgotPassword')->name('forgot-password')->middleware('auth:sanctum');
+        Route::post('/reset-password', 'resetPassword')->name('reset-password')->middleware('auth:sanctum');
     });
