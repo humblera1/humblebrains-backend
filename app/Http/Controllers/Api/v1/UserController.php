@@ -8,6 +8,8 @@ use App\Http\Requests\Api\v1\user\UserUpdateRequest;
 use App\Http\Resources\Api\v1\UserResource;
 use App\Services\Api\AuthService;
 use App\Services\Api\UserService;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -42,5 +44,15 @@ class UserController extends Controller
     public function update(UserUpdateRequest $request): UserResource
     {
         return new UserResource($this->service->update($request->validated()));
+    }
+
+    public function sendEmailVerificationNotification(Request $request)
+    {
+        $request->user()->sendEmailVerificationNotification();
+    }
+
+    public function verifyEmail(EmailVerificationRequest $request)
+    {
+        $request->fulfill();
     }
 }

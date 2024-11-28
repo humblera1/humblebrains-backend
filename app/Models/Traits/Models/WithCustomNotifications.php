@@ -3,6 +3,7 @@
 namespace App\Models\Traits\Models;
 
 use App\Notifications\ResetPasswordNotification;
+use App\Notifications\VerifyEmailNotification;
 
 trait WithCustomNotifications
 {
@@ -14,5 +15,13 @@ trait WithCustomNotifications
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new ResetPasswordNotification($token));
+    }
+
+    /**
+     * Send an email verification notification to the user.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification);
     }
 }
