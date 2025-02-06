@@ -42,7 +42,7 @@ class AuthController extends Controller
             $this->responseWithPlainValidationError('The provided credentials do not match our records');
         }
 
-        $request->session()->regenerate();
+        session()->regenerate();
 
         return new UserResource(Auth::user()->loadAllRelations());
     }
