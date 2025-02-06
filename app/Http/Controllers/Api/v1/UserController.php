@@ -10,6 +10,7 @@ use App\Services\Api\AuthService;
 use App\Services\Api\UserService;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -42,9 +43,11 @@ class UserController extends Controller
         return new UserResource(Auth::user());
     }
 
-    public function sendEmailVerificationNotification(Request $request): void
+    public function sendEmailVerificationNotification(Request $request): Response
     {
         $request->user()->sendEmailVerificationNotification();
+
+        return response()->noContent();
     }
 
     public function verifyEmail(EmailVerificationRequest $request): void

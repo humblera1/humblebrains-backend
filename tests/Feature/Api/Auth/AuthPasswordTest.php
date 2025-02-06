@@ -15,11 +15,6 @@ class AuthPasswordTest extends TestCase
 
     protected User $user;
 
-    /**
-     * Test changing the user's password.
-     * This test verifies that a user can successfully change their password
-     * and that the new password is valid for authentication.
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,6 +22,11 @@ class AuthPasswordTest extends TestCase
         $this->user = $this->authenticateUser();
     }
 
+    /**
+     * Test changing the user's password.
+     * This test verifies that a user can successfully change their password
+     * and that the new password is valid for authentication.
+     */
     public function test_change_password(): void
     {
         $this->user->email = 'new-email@example.com';
