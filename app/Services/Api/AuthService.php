@@ -177,7 +177,7 @@ final class AuthService
     {
         $user = Auth::user();
 
-        Auth::logoutOtherDevices($changePasswordDTO->currentPassword);
+        Auth::guard('web')->logoutOtherDevices($changePasswordDTO->currentPassword);
 
         $user->password = $changePasswordDTO->newPassword;
         $user->save();
@@ -204,11 +204,12 @@ final class AuthService
     {
         $status = Password::reset(
             $data,
-            function ($user, $password) {
+            function (User $user, string $password) {
                 $user->forceFill([
-                    'password' => Hash::make($password),
-                    'remember_token' => Str::random(60),
-                ])->save();
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+
+                $user->save();
 
                 event(new PasswordReset($user));
             }
