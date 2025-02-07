@@ -25,8 +25,7 @@ class ProgramService
 
     public function insertSessionsForProvidedProgram(Program $program): void
     {
-        // todo: from global configs
-        $sessionsInProgramAmount = 3;
+        $sessionsInProgramAmount = config('global.sessions_in_program_amount');
 
         $sessions = [];
 
@@ -43,8 +42,7 @@ class ProgramService
 
     public function insertSessionGamesForProvidedProgram(Program $program): void
     {
-        // todo: from global configs
-        $gamesInSessionAmount = 5;
+        $gamesInSessionAmount = config('global.games_in_session_amount');
 
         $availableGameIds = Game::where('category_id', $program->priority_category_id)->pluck('id')->flip()->toArray();
 
