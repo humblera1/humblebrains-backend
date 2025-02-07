@@ -4,6 +4,9 @@ namespace App\Listeners;
 
 use App\Events\StageCompleted;
 
+/**
+ * @deprecated since the moment a separate request is responsible for completing the checkpoint
+ */
 class UpdateCheckpointStatus
 {
     /**
