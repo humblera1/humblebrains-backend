@@ -71,15 +71,4 @@ SVG;
 
         $this->assertFalse($result, 'The method should return false for invalid XML.');
     }
-
-    // todo: add one more test
-//    public function test_logs_errors_when_exceptions_occur()
-//    {
-//        Log::shouldReceive('error')->once();
-//
-//        $invalidSvgContent = '<svg><rect></svg>';
-//        $result = $this->updateSvgFill($invalidSvgContent);
-//
-//        $this->assertFalse($result);
-//    }
 }

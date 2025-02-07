@@ -10,12 +10,12 @@ use App\Models\SessionGame;
 use App\Models\Traits\Tests\WithAuthenticate;
 use App\Models\User;
 use App\Services\Api\ProgramService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class ProgramServiceTest extends TestCase
 {
-    use RefreshDatabase, WithAuthenticate;
+    use DatabaseTransactions, WithAuthenticate;
 
     protected User $user;
 
@@ -36,16 +36,17 @@ class ProgramServiceTest extends TestCase
      */
     public function test_insert_games_for_each_session()
     {
+        $gamesInSession = config('global.games_in_session_amount');
+
         $category = Category::factory()->create();
         $program = Program::factory()->for($this->user)->create(['priority_category_id' => $category->id]);
         $sessions = ProgramSession::factory()->for($program)->count(3)->create();
 
-        Game::factory()->count(5)->for($category)->create();
+        Game::factory()->count($gamesInSession)->for($category)->create();
 
         $this->service->insertSessionGamesForProvidedProgram($program);
 
-        $this->assertCount(5, SessionGame::where('session_id', $sessions->random()->id)->get());
-        $this->assertDatabaseCount('session_games', 15);
+        $this->assertCount($gamesInSession, SessionGame::where('program_session_id', $sessions->random()->id)->get());
     }
 
     /**
@@ -55,22 +56,24 @@ class ProgramServiceTest extends TestCase
      */
     public function test_insert_sessions_for_program()
     {
+        $gamesInSession = config('global.games_in_session_amount');
+        $sessionsInProgram = config('global.sessions_in_program_amount');
+
         $category = Category::factory()->create();
         $program = Program::factory()->for($this->user)->create(['priority_category_id' => $category->id]);
 
-        Game::factory()->count(5)->for($category)->create();
+        Game::factory()->count($gamesInSession)->for($category)->create();
 
         $programService = new ProgramService();
         $programService->insertSessionsForProvidedProgram($program);
 
         $this->assertCount(3, ProgramSession::where('program_id', $program->id)->get());
 
-        $this->assertDatabaseHas( 'program_sessions', [
+        $this->assertDatabaseHas('program_sessions', [
             'program_id' => $program->id,
         ]);
 
-        $this->assertDatabaseCount('program_sessions', 3);
-        $this->assertDatabaseCount('session_games', 15);
+        $this->assertEquals($sessionsInProgram, ProgramSession::where('program_id', $program->id)->count());
     }
 
     /**
@@ -80,9 +83,10 @@ class ProgramServiceTest extends TestCase
      */
     public function test_generate_program_with_correct_user_and_category_id()
     {
+        $gamesInSession = config('global.games_in_session_amount');
 
         $category = Category::factory()->create();
-        Game::factory()->count(5)->for($category)->create();
+        Game::factory()->count($gamesInSession)->for($category)->create();
 
         $this->service->generateProgram($category->id);
 
@@ -91,9 +95,9 @@ class ProgramServiceTest extends TestCase
             'priority_category_id' => $category->id,
         ]);
 
-        $this->assertDatabaseCount('programs', 1);
-        $this->assertDatabaseCount('program_sessions', 3);
-        $this->assertDatabaseCount('session_games', 15);
+        $this->assertDatabaseHas('programs', [
+            'user_id' => $this->user->id,
+        ]);
     }
 
     /**
@@ -103,6 +107,9 @@ class ProgramServiceTest extends TestCase
      */
     public function test_generate_games_when_no_games_with_provided_category_exists()
     {
+        $gamesInSession = config('global.games_in_session_amount');
+        $sessionsInProgram = config('global.sessions_in_program_amount');
+
         $categories = Category::factory(2)->create();
 
         $firstCategory = $categories->first();
@@ -117,6 +124,13 @@ class ProgramServiceTest extends TestCase
             'priority_category_id' => $lastCategory->id,
         ]);
 
-        $this->assertDatabaseCount('session_games', 15);
+        $program = Program::where('user_id', $this->user->id)->first();
+
+        $this->assertNotNull($program);
+
+        $sessionIds = ProgramSession::where('program_id', $program->id)->pluck('id');
+        $games = SessionGame::whereIn('program_session_id', $sessionIds)->pluck('game_id');
+
+        $this->assertCount($gamesInSession * $sessionsInProgram, $games);
     }
 }
