@@ -167,11 +167,27 @@ final class GameService
     {
         if ($userStatistics) {
             $answersAmount = $userStatistics->mean_correct_answers_amount;
+
+            // there is no basic property 'points_per_answer'
+            if (!isset($levelsArray[$maxLevel]['points_per_answer'])) {
+                return 0;
+            }
+
             $pointsPerAnswer = $levelsArray[$maxLevel]['points_per_answer'];
 
             $rawTarget = $answersAmount * $pointsPerAnswer;
         } else {
+            // there is no levels for this game at all
+            if (empty($levelsArray)) {
+                return 0;
+            }
+
             $firstLevel = $levelsArray[1];
+
+            // there is no basic properties
+            if (!isset($firstLevel['correct_answers_before_finish']) || !isset($firstLevel['successful_rounds_before_promotion']) || !isset($firstLevel['points_per_answer'])) {
+                return 0;
+            }
 
             $rawTarget = $firstLevel['correct_answers_before_finish'] * $firstLevel['successful_rounds_before_promotion'] * $firstLevel['points_per_answer'];
         }

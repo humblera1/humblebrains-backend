@@ -127,7 +127,7 @@ final class AchievementService
         // first, check if new level unlocked in last game
         $latestGame = $this->getLatestGame();
 
-        $maxUnlockedLevel = $this->user->history()
+        $maxUnlockedLevel = (int) $this->user->history()
             ->where('game_id', $this->game->id)
             ->whereNot('id', $latestGame->id)
             ->max('max_unlocked_level');
@@ -200,7 +200,11 @@ final class AchievementService
     public function checkNewRecordAchievement(): void
     {
         $latestGame = $this->getLatestGame();
-        $oldRecord = $this->user->gameStatistics->where('game_id', $this->game->id)->value('max_score');
+
+        $oldRecord = (int) $this->user->history()
+            ->where('game_id', $this->game->id)
+            ->whereNot('id', $latestGame->id)
+            ->max('score');
 
         if ($latestGame->score > $oldRecord) {
             $this->awardAchievement(AchievementEnum::NewRecord);
