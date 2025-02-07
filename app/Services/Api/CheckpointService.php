@@ -56,6 +56,8 @@ final class CheckpointService
 
     public function finishCheckpoint(): void
     {
+        // todo: может быть завершен чекпоинт с незавершенными этапами
+
         $checkpoint = Auth::user()->latestUncompletedCheckpoint;
 
         if ($checkpoint) {
