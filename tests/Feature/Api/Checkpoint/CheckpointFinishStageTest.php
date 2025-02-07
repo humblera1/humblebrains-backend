@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Api\Checkpoint;
+namespace Api\Checkpoint;
 
 use App\Enums\Game\CategoryEnum;
 use App\Models\Category;
@@ -89,7 +89,6 @@ class CheckpointFinishStageTest extends TestCase
                 'category',
             ],
         ]);
-
     }
 
     /**
@@ -233,8 +232,7 @@ class CheckpointFinishStageTest extends TestCase
         /** @var Checkpoint $checkpoint */
         $checkpoint = Checkpoint::factory()->for($this->user)->create();
 
-        /** @var CheckpointStage $completedStage */
-        $completedStage = CheckpointStage::factory()
+        CheckpointStage::factory()
             ->for($checkpoint)
             ->create([
                 'score' => 10,

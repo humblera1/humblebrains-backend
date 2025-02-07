@@ -121,6 +121,5 @@ class CheckpointFinishTest extends TestCase
                 'createdAt',
             ],
         ]);
-
     }
 }
