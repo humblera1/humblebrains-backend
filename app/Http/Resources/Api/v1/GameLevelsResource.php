@@ -10,8 +10,8 @@ class GameLevelsResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'max_level' => $this->max_level,
-            'user_level' => $this->userStatistics->first()->max_level ?? 0,
+            'max_level' => $this->userStatistics()->where('user_id', \Auth::id())->value('max_level') ?? 1,
+            'user_level' => $this->lastPlayedGame()->where('user_id', \Auth::id())->value('finished_at_level') ?? 1,
             'levels' => $this->propertiesByLevel(),
         ];
     }
