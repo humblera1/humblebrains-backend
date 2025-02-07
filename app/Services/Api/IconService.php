@@ -18,7 +18,7 @@ class IconService
 
             return [
                 'name' => $icon->name,
-                'src' => Storage::url($icon->path),
+                'src' => url($icon->path),
             ];
         })->toArray();
     }

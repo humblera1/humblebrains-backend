@@ -27,6 +27,8 @@ class Init extends Command
     {
         $this->call('app:update-icons-fill');
         $this->call('app:import-icons');
+        $this->call('app:link-icons');
+
         $this->call('app:import-words');
         $this->call('app:import-messages');
 

@@ -4,6 +4,7 @@ namespace App\Console\Commands\Icons;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class ImportIcons extends Command
@@ -29,7 +30,7 @@ class ImportIcons extends Command
      */
     public function handle(): void
     {
-        $files = Storage::files('icons');
+        $files = File::files(storage_path('data/icons'));
 
         if (empty($files)) {
             $this->error('No icons found in the directory.');
@@ -41,11 +42,12 @@ class ImportIcons extends Command
         $iconsData = [];
 
         foreach ($files as $file) {
+
             $name = pathinfo($file, PATHINFO_FILENAME);
 
             $iconsData[] = [
                 'name' => $name,
-                'path' => $file,
+                'path' => "icons/{$file->getFilename()}",
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
