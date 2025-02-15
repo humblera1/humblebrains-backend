@@ -30,6 +30,7 @@ class UserResource extends JsonResource
             'username' => $this->username,
             'email' => $this->email,
             'is_email_verified' => (bool) $this->email_verified_at,
+            'avatar' => $this->when($this->avatar, fn () => url('uploads/' . $this->avatar)),
         ];
     }
 }

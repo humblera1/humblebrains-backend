@@ -13,9 +13,9 @@ return [
         'en' => 'Matrix description',
     ],
     'max_level' => 30,
-    'main_image' => 'games/matrix/main.png',
-    'thumbnail_image' => 'games/matrix/thumbnail.png',
-    'icon_image' => 'games/matrix/icon.png',
+    'main_image' => 'images/games/matrix/main.png',
+    'thumbnail_image' => 'images/games/matrix/thumbnail.png',
+    'icon_image' => 'images/games/matrix/icon.png',
     'category' => CategoryEnum::Memory,
     'tutorial' => [
         'ru' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'

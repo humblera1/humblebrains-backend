@@ -12,7 +12,7 @@ services:
       - ./docker/nginx/prod:/etc/nginx/conf.d/
       - icons_data:/var/www/public/icons
       - images_data:/var/www/public/images
-      - uploads_data:/var/www/public/storage
+      - uploads_data:/var/www/public/uploads
 #      - /etc/letsencrypt:/etc/letsencrypt:ro
 
   app:

@@ -4,7 +4,7 @@ namespace App\Console\Commands\Icons;
 
 use App\Services\Api\IconService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class UpdateIconsFill extends Command
 {
@@ -27,7 +27,15 @@ class UpdateIconsFill extends Command
      */
     public function handle(IconService $service): void
     {
-        $files = Storage::files('icons');
+        $iconsPath = storage_path('data/icons');
+
+        if (!File::exists($iconsPath)) {
+            $this->error("The directory {$iconsPath} does not exist.");
+
+            return;
+        }
+
+        $files = File::files($iconsPath);
 
         if (empty($files)) {
             $this->error('No icons found in the directory.');
@@ -38,7 +46,7 @@ class UpdateIconsFill extends Command
         $this->output->progressStart(count($files));
 
         foreach ($files as $file) {
-            $mimeType = Storage::mimeType($file);
+            $mimeType = File::mimeType($file->getRealPath());
 
             if ($mimeType !== 'image/svg+xml') {
                 $this->warn("File {$file} is not SVG. MIME type: {$mimeType}");
@@ -46,7 +54,7 @@ class UpdateIconsFill extends Command
                 continue;
             }
 
-            $svgContent = Storage::get($file);
+            $svgContent = File::get($file);
             $updatedContent = $service->updateSvgFill($svgContent);
 
             if (!$updatedContent) {
@@ -55,7 +63,7 @@ class UpdateIconsFill extends Command
                  continue;
             }
 
-            Storage::put($file, $updatedContent);
+            File::put($file, $updatedContent);
 
             $this->output->progressAdvance();
         }
