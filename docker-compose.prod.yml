@@ -11,6 +11,7 @@ services:
       - ./public:/var/www/public
       - ./docker/nginx/prod:/etc/nginx/conf.d/
       - icons_data:/var/www/public/icons
+      - images_data:/var/www/public/images
       - uploads_data:/var/www/public/storage
 #      - /etc/letsencrypt:/etc/letsencrypt:ro
 
@@ -23,6 +24,7 @@ services:
     volumes:
       - ./public:/var/www/public
       - icons_data:/var/www/storage/data/icons
+      - images_data:/var/www/storage/data/images
       - uploads_data:/var/www/storage/app/public
     env_file:
       - .env
