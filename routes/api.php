@@ -24,4 +24,6 @@ Route::name('api.')
         require __DIR__ . $prefix . '/files.php';
         require __DIR__ . $prefix . '/users.php';
     });
+
+    Route::get('/health', fn () => response()->json(['status' => 'ok']));
 });

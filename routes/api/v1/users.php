@@ -7,7 +7,7 @@ Route::controller(\App\Http\Controllers\Api\v1\UserController::class)
     ->name('users.')
     ->group(function () {
         Route::post('/me', 'me')->name('me');
-        Route::put('/update', 'update')->name('update')->middleware('auth:sanctum');
+        Route::post('/update', 'update')->name('update')->middleware('auth:sanctum');
         Route::post('/set-avatar', 'setAvatar')->name('set-avatar')->middleware('auth:sanctum');
         Route::post('/send-email-verification-notification', 'sendEmailVerificationNotification')->name('send-email-verification-notification');
     });
