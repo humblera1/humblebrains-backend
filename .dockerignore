@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+
+# Node.js зависимости
+node_modules
+
+# Сборка фронтенда Laravel
+public/build
+public/hot
+
+# Локальное хранилище
+public/storage
+
+# Ключи шифрования и прочие чувствительные данные из storage
+storage/*.key
+storage/app/public
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/testing/*
+storage/framework/views/*
+storage/logs
+
+# Vendor
+vendor
+
+# Файлы
+.env
+.env.dist
+.env.backup
+.env.production
+
+# Кэш и результаты тестов
+.phpunit.cache
+.phpunit.result.cache
+.phpactor.json
+
+# Файлы Homestead
+Homestead.json
+Homestead.yaml
+
+# Лог-файлы Node и Yarn
+npm-debug.log
+yarn-error.log
+
+# IDE и локальные пользовательские конфигурации
+.fleet
+.idea
+.vscode
+.qodo
+
+# Временные файлы
+tmp
+cache
