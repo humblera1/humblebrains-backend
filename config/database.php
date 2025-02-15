@@ -97,6 +97,20 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Custom pgsql-dev connection
+        'pgsql-dev' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', 'pgsql-dev'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),
