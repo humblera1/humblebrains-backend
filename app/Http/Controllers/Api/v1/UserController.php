@@ -50,8 +50,10 @@ class UserController extends Controller
         return response()->noContent();
     }
 
-    public function verifyEmail(EmailVerificationRequest $request): void
+    public function verifyEmail(EmailVerificationRequest $request): UserResource
     {
         $request->fulfill();
+
+        return new UserResource(Auth::user());
     }
 }

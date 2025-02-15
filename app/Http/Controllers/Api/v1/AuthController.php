@@ -63,7 +63,12 @@ class AuthController extends Controller
             ? $this->service->promoteCurrentUserToFullFledged($request->validated())
             : $this->service->registerAndLoginFullFledgedUser($request->validated());
 
-        return new UserResource(Auth::user()->loadAllRelations());
+        $user = Auth::user();
+
+        $user->refresh();
+        $user->loadAllRelations();
+
+        return new UserResource($user);
     }
 
     public function changePassword(ChangePasswordRequest $request)
