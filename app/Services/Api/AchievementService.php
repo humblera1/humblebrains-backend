@@ -154,8 +154,8 @@ final class AchievementService
 
         $totalUsersCount = TotalUser::value('count');
 
-        if ($totalUsersCount === 0) {
-            return; // Application error
+        if (empty($totalUsersCount)) {
+            return; // There is no full-fledged users
         }
 
         $latestGame = $this->getLatestGame();
@@ -177,7 +177,7 @@ final class AchievementService
 
         $higherScoreUsersCount = $higherScoreUsersQuery->count();
 
-        if ($higherScoreUsersCount === 0) {
+        if (empty($higherScoreUsersCount)) {
             $this->awardAchievement(AchievementEnum::LowerScorePercentage, $message->getMessagePluralForm(99));
 
             return;
@@ -278,8 +278,8 @@ final class AchievementService
 
         $totalUsersCount = TotalUser::value('count');
 
-        if ($totalUsersCount === 0) {
-            return; // Application error
+        if (empty($totalUsersCount)) {
+            return; // There is no full-fledged users
         }
 
         $currentUserMaxScore = $this->user->gameStatistics()->value('max_score');
@@ -289,7 +289,7 @@ final class AchievementService
             ->where('max_score', '>', $currentUserMaxScore)
             ->count();
 
-        if ($higherScoreUsersCount === 0) {
+        if (empty($higherScoreUsersCount)) {
             $this->awardAchievement(TotalAchievementEnum::LowerScorePercentage, $message->getMessagePluralForm(99));
 
             return;

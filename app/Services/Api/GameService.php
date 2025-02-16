@@ -31,7 +31,7 @@ final class GameService
     /**
      * The game round duration in seconds.
      */
-    private const GAME_DURATION = 90;
+    private const GAME_DURATION = 5;
 
     /**
      * Save the game result.
@@ -117,6 +117,7 @@ final class GameService
 
         return new UserGameLevelsDTO(
             game: $game->name,
+            image: url($game->main_image),
             time: self::GAME_DURATION,
             maxUserLevel: $maxLevel,
             lastUserLevel: $userLevel,
