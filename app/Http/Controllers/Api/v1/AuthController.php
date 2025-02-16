@@ -39,7 +39,7 @@ class AuthController extends Controller
         $this->service->prepareCredentialsToLogin($credentials);
 
         if (!Auth::attempt($credentials)) {
-            $this->responseWithPlainValidationError('The provided credentials do not match our records');
+            $this->responseWithPlainValidationError(__('auth.failed'));
         }
 
         session()->regenerate();

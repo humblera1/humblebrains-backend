@@ -7,6 +7,7 @@ Route::name('api.')
     ->middleware(
         [
 //            'auth:sanctum',
+            \App\Http\Middleware\SetLocaleMiddleware::class,
             \App\Http\Middleware\ConvertResponseKeysToCamelCase::class,
             \App\Http\Middleware\ConvertRequestKeysToSnakeCase::class,
         ]
