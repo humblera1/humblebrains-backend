@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\Game\CategoryEnum;
 use App\Models\Category;
 use App\Models\Checkpoint;
 use App\Models\CheckpointStage;
@@ -28,9 +29,14 @@ class CreateCheckpointForNewUser
             $categories = Category::all();
 
             $stages = $categories->map(function ($category) use ($checkpoint) {
+                // todo: logic-category:
+                $isCompleted = $category->name === CategoryEnum::Logic->value;
+
                 return [
                     'checkpoint_id' => $checkpoint->id,
                     'category_id' => $category->id,
+                    // todo: logic-category:
+                    'is_completed' => $isCompleted,
                 ];
             })->toArray();
 
