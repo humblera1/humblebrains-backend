@@ -25,6 +25,7 @@ RUN docker-php-ext-install \
           exif \
           pcntl \
           bcmath \
+          gd \
           zip \
           opcache \
           sockets \

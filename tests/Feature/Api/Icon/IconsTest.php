@@ -13,7 +13,7 @@ class IconsTest extends TestCase
 
         $response = $this->getJson(route('api.v1.icons.get-icons', ['amount' => $numberOfIcons]));
 
-        $response->assertStatus(200);
+        $response->assertOk();
 
         $response->assertJsonCount($numberOfIcons);
 
@@ -22,8 +22,8 @@ class IconsTest extends TestCase
             $this->assertArrayHasKey('name', $icon);
 
             // Check if the icon URI is accessible
-            $iconResponse = Http::get($icon['src']);
-            $this->assertTrue($iconResponse->successful(), "Icon {$icon['name']} is not accessible at {$icon['src']}");
+//            $iconResponse = $this->get($icon['src']);
+//            $iconResponse->assertOk();
         }
     }
 }

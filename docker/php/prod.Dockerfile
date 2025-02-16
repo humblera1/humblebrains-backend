@@ -35,6 +35,7 @@ RUN apk --no-cache add \
       pcntl \
       bcmath \
       zip \
+      gd \
       opcache \
       sockets \
       intl \

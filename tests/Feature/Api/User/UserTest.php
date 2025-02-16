@@ -69,7 +69,7 @@ class UserTest extends TestCase
             'email' => 'updated@example.com'
         ];
 
-        $response = $this->putJson(route('api.v1.users.update'), $newData);
+        $response = $this->postJson(route('api.v1.users.update'), $newData);
 
         $response->assertOk()
             ->assertJsonPath('data.personalData.name', 'Updated Name')
