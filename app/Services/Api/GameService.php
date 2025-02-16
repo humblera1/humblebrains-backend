@@ -18,9 +18,20 @@ use Illuminate\Support\Facades\DB;
 
 final class GameService
 {
+    /**
+     * The maximum number of records that can participate in forming statistics.
+     */
     private const STATISTICS_RECORD_LIMIT = 100;
+
+    /**
+     * The factor involved in forming the target.
+     */
     private const REDUCTION_FACTOR = 0.25;
-    private const GAME_DURATION = 10;
+
+    /**
+     * The game round duration in seconds.
+     */
+    private const GAME_DURATION = 90;
 
     /**
      * Save the game result.
