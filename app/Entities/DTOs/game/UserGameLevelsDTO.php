@@ -8,6 +8,7 @@ class UserGameLevelsDTO extends BaseDTO
 {
     public function __construct(
         public readonly string $game,
+        public readonly string $image,
         public readonly int $time,
         public readonly int $maxUserLevel,
         public readonly int $lastUserLevel,
