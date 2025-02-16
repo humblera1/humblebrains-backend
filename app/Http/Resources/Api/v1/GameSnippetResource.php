@@ -19,7 +19,7 @@ class GameSnippetResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'label' => $this->label,
-            'image' => Storage::url($this->icon_image),
+            'image' => url($this->icon_image),
             'max_level' => $this->max_level,
             'user_level' => $this->whenLoaded('userStatistics', function () {
                 return $this->userStatistics->first()->max_level ?? 0;
