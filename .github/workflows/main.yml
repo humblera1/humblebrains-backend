@@ -1,0 +1,140 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  test:
+    name: Test Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build images as defined in docker-compose.test.yml
+      - name: Build Docker images using Docker Compose
+        run: |
+          docker compose -f docker-compose.test.yml build
+
+      # Start the full environment for testing.
+      - name: Start Test Environment
+        env:
+          DB_DATABASE: humblebrains
+          DB_USERNAME: username
+          DB_PASSWORD: password
+        run: |
+          docker compose -f docker-compose.test.yml up -d
+
+      - name: Wait for services to be ready
+        env:
+          APP_NAME: humblebrains
+        run: |
+          echo "Waiting for PostgreSQL to be healthy..."
+          CONTAINER_NAME="${APP_NAME}-pgsql"
+          STATUS=$(docker inspect --format '{{.State.Health.Status}}' ${CONTAINER_NAME} 2>/dev/null || echo "starting")
+          MAX_WAIT=120
+          WAITED=0
+          while [ "$STATUS" != "healthy" ] && [ "$WAITED" -lt "$MAX_WAIT" ]; do
+            echo "Current status: $STATUS. Waiting for PostgreSQL..."
+            sleep 5
+            WAITED=$(( WAITED + 5 ))
+            STATUS=$(docker inspect --format '{{.State.Health.Status}}' "${CONTAINER_NAME}" 2>/dev/null || echo "starting")
+          done
+          if [ "$STATUS" = "healthy" ]; then
+            echo "PostgreSQL is healthy after $WAITED seconds."
+          else
+            echo "Timeout reached: PostgreSQL did not become healthy after $WAITED seconds. Current status: $STATUS"
+            exit 1
+          fi
+
+      - name: Run tests
+        run: |
+          docker compose -f docker-compose.test.yml run --rm --entrypoint="php" app artisan config:clear
+          docker compose -f docker-compose.test.yml run --rm --entrypoint="php" app artisan migrate --force
+          docker compose -f docker-compose.test.yml run --rm --entrypoint="php" app artisan app:init
+          docker compose -f docker-compose.test.yml run --rm --entrypoint="php" app artisan test --stop-on-failure
+
+      - name: Shutdown Test Environment
+        if: always()
+        run: |
+          docker compose -f docker-compose.test.yml down
+
+  build-and-push:
+    name: Build and Push Production Image
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker images using Docker Compose
+        env:
+          APP_NAME: humblebrains-backend
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          COMMIT_TAG: ${{ github.ref_name }}
+        run: |
+          docker compose -f docker-compose.prod.yml build
+          docker compose -f docker-compose.prod.yml push
+
+  deploy:
+    name: Deploy to Production Server
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.TIMEWEB_HOST }}
+          username: ${{ secrets.TIMEWEB_USER }}
+          password: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.prod.yml,docker/"
+          target: "/home/projects/humblebrains-backend/"
+
+      - name: Deploy to Production Server
+        env:
+          APP_NAME: humblebrains-backend
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          COMMIT_TAG: ${{ github.ref_name }}
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.TIMEWEB_HOST }}
+          username: ${{ secrets.TIMEWEB_USER }}
+          password: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: DOCKER_USERNAME,APP_NAME,COMMIT_TAG
+          script: |
+            cd /home/projects/humblebrains-backend
+            echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u $DOCKER_USERNAME --password-stdin
+
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml ps
+
+            docker compose -f docker-compose.prod.yml exec app php artisan migrate
+            docker compose -f docker-compose.prod.yml exec app php artisan config:cache
+            docker compose -f docker-compose.prod.yml exec app php artisan optimize

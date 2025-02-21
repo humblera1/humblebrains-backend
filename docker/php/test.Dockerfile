@@ -15,7 +15,7 @@ WORKDIR /var/www
 
 COPY . /var/www
 
-RUN composer install --no-dev --optimize-autoloader --classmap-authoritative
+RUN composer install --optimize-autoloader --classmap-authoritative
 
 # Stage 2: Production Stage
 FROM php:8.2-fpm-alpine

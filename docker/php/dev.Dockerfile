@@ -11,6 +11,10 @@ RUN apk --no-cache add \
     oniguruma-dev \
     icu-dev \
     postgresql-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    libwebp-dev \
+    freetype-dev \
     autoconf \
     make \
     gcc \
@@ -18,7 +22,8 @@ RUN apk --no-cache add \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN docker-php-ext-install \
+RUN docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype \
+    && docker-php-ext-install \
           pdo_mysql \
           mbstring \
           mysqli \

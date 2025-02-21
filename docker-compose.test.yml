@@ -1,35 +1,39 @@
 services:
-  nginx-dev:
-    container_name: ${APP_NAME}-nginx-dev
+  nginx:
+    container_name: ${APP_NAME}-nginx
     image: nginx:1.27.3-alpine
     networks:
       - web_network
     ports:
       - ${APP_PORT}:80
     volumes:
-      - ./:/var/www
-      - ./docker/nginx/dev:/etc/nginx/conf.d/
+      - ./public:/var/www/public
+      - ./docker/nginx/prod:/etc/nginx/conf.d/
+      - icons_data:/var/www/public/icons
+      - images_data:/var/www/public/images
+      - uploads_data:/var/www/public/uploads
 
-  app-dev:
-    container_name: ${APP_NAME}-app-dev
+  app:
+    container_name: ${APP_NAME}-app
     build:
       context: ./
-      dockerfile: ./docker/php/dev.Dockerfile
+      dockerfile: ./docker/php/test.Dockerfile
     volumes:
-      - ./:/var/www
-      - vendor_data:/var/www/vendor
+      - ./public:/var/www/public
+      - ./.env.example:/var/www/.env:ro
+      - icons_data:/var/www/storage/data/icons
+      - images_data:/var/www/storage/data/images
+      - uploads_data:/var/www/storage/app/public
     env_file:
       - .env
     networks:
       - db_network
       - web_network
     depends_on:
-      - pgsql-dev
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - pgsql
 
-  pgsql-dev:
-    container_name: ${APP_NAME}-pgsql-dev
+  pgsql:
+    container_name: ${APP_NAME}-pgsql
     image: 'postgres:17-alpine'
     ports:
       - '${FORWARD_DB_PORT:-5432}:5432'
@@ -44,13 +48,16 @@ services:
     networks:
       - db_network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -q -d ${DB_DATABASE} -U ${DB_USERNAME}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
       retries: 3
       timeout: 5s
 
 networks:
   db_network:
+    internal: true
   web_network:
 volumes:
   pgsql_data:
-  vendor_data:
+  images_data:
+  uploads_data:
+  icons_data:

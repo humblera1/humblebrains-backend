@@ -4,25 +4,35 @@ services:
     image: nginx:1.27.3-alpine
     networks:
       - web_network
-    ports:
-      - "8080:80"
-      - "443:443"
+      - traefik_net
     volumes:
-      - ./public:/var/www/public
       - ./docker/nginx/prod:/etc/nginx/conf.d/
-      - icons_data:/var/www/public/icons
-      - images_data:/var/www/public/images
-      - uploads_data:/var/www/public/uploads
-#      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - public_data:/var/www/public
+      - icons_data:/var/www/public/icons:ro
+      - images_data:/var/www/public/images:ro
+      - uploads_data:/var/www/public/uploads:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_net"
+
+      # HTTP Router (port 80) - redirect to HTTPS
+      - "traefik.http.routers.humblebrains-web.rule=Host(`api.humblebrains.ru`) || Host(`www.api.humblebrains.ru`)"
+      - "traefik.http.routers.humblebrains-web.entrypoints=web"
+      - "traefik.http.routers.humblebrains-web.middlewares=redirect-to-https@file"
+
+      # HTTPS Router (port 443) - serve TLS
+      - "traefik.http.routers.humblebrains-secure.rule=Host(`api.humblebrains.ru`) || Host(`www.api.humblebrains.ru`)"
+      - "traefik.http.routers.humblebrains-secure.entrypoints=websecure"
+      - "traefik.http.routers.humblebrains-secure.tls.certresolver=myresolver"
 
   app:
     container_name: ${APP_NAME}-app
     build:
       context: ./
       dockerfile: ./docker/php/prod.Dockerfile
-#    image: ${DOCKER_USERNAME}/${APP_NAME}:app-${COMMIT_TAG}
+    image: ${DOCKER_USERNAME}/${APP_NAME}:app-${COMMIT_TAG}
     volumes:
-      - ./public:/var/www/public
+      - public_data:/var/www/public
       - icons_data:/var/www/storage/data/icons
       - images_data:/var/www/storage/data/images
       - uploads_data:/var/www/storage/app/public
@@ -50,22 +60,19 @@ services:
     networks:
       - db_network
     healthcheck:
-      test:
-        - CMD
-        - pg_isready
-        - '-q'
-        - '-d'
-        - '${DB_DATABASE}'
-        - '-U'
-        - '${DB_USERNAME}'
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
       retries: 3
       timeout: 5s
 
 networks:
+  web_network:
   db_network:
     internal: true
-  web_network:
+  traefik_net:
+    external: true
 volumes:
   pgsql_data:
+  public_data:
+  images_data:
   uploads_data:
   icons_data:
