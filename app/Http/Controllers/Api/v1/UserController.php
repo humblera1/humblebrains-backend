@@ -29,6 +29,11 @@ class UserController extends Controller
         return new UserResource(Auth::user()->loadAllRelations());
     }
 
+    public function statistics(): array
+    {
+        return $this->formatResponse($this->service->getCheckpointStatistics());
+    }
+
     public function setAvatar(FileUploadRequest $request): UserResource
     {
         $this->service->setAvatar($request->file('file'));

@@ -2,6 +2,7 @@
 
 namespace App\Services\Api;
 
+use App\Models\CheckpointStage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,5 +36,28 @@ final class UserService
         $user->avatar = $path;
 
         $user->save();
+    }
+
+    public function getCheckpointStatistics(): array
+    {
+        /** @var CheckpointStage[] $completedStages */
+        $completedStages = Auth::user()->completedStages()->with('category')->get();
+        $statistics = [];
+
+        $statistics['stages'] = [];
+
+        foreach ($completedStages as $stage) {
+            $statistics[$stage->category->name][] = $stage->score;
+        }
+
+        if (isset($stage)) {
+            $scoresAmount = count($statistics[$stage->category->name]);
+
+            if ($scoresAmount > 0) {
+                $statistics['stages'] = range(1, $scoresAmount);
+            }
+        }
+
+        return $statistics;
     }
 }

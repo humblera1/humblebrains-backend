@@ -102,6 +102,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->throughCheckpoints()->hasStages();
     }
 
+    public function completedStages(): HasManyThrough
+    {
+        return $this->hasManyThrough(CheckpointStage::class, Checkpoint::class)
+            ->where('checkpoints.is_completed', true)
+            ->where('checkpoint_stages.is_completed', true);
+    }
+
     public function programs(): HasMany
     {
         return $this->hasMany(Program::class);
