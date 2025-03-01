@@ -12,6 +12,7 @@ use App\Http\Resources\Api\v1\UserResource;
 use App\Models\Traits\Controllers\withResponseHelpers;
 use App\Services\Api\AuthService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -67,6 +68,8 @@ class AuthController extends Controller
 
         $user->refresh();
         $user->loadAllRelations();
+
+        event(new Registered($user));
 
         return new UserResource($user);
     }

@@ -3,10 +3,10 @@
 namespace App\Listeners;
 
 use App\Enums\Game\CategoryEnum;
+use App\Events\AnonymousRegistered;
 use App\Models\Category;
 use App\Models\Checkpoint;
 use App\Models\CheckpointStage;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\DB;
 
 class CreateCheckpointForNewUser
@@ -22,7 +22,7 @@ class CreateCheckpointForNewUser
     /**
      * Handle the event.
      */
-    public function handle(Registered $event): void
+    public function handle(AnonymousRegistered $event): void
     {
         DB::transaction(function () use ($event) {
             $checkpoint = Checkpoint::create(['user_id' => $event->user->getAuthIdentifier()]);

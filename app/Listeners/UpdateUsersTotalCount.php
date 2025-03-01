@@ -2,8 +2,8 @@
 
 namespace App\Listeners;
 
+use App\Events\AnonymousRegistered;
 use App\Models\TotalUser;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Queue\InteractsWithQueue;
 
 class UpdateUsersTotalCount
@@ -21,7 +21,7 @@ class UpdateUsersTotalCount
     /**
      * Handle the event.
      */
-    public function handle(Registered $event): void
+    public function handle(AnonymousRegistered $event): void
     {
         TotalUser::increment('count');
     }

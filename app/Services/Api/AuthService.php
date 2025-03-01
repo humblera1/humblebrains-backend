@@ -3,6 +3,7 @@
 namespace App\Services\Api;
 
 use App\Entities\DTOs\user\ChangePasswordDTO;
+use App\Events\AnonymousRegistered;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
@@ -25,7 +26,11 @@ final class AuthService
     {
         self::prepareCredentialsToRegisterAnonymous($credentials);
 
-        return self::registerUser($credentials);
+        $user = self::registerUser($credentials);
+
+        event(new AnonymousRegistered($user));
+
+        return $user;
     }
 
     /**
@@ -46,8 +51,6 @@ final class AuthService
     public function registerUser(array $credentials): User
     {
         $user =  self::upsertUser($credentials);
-
-        event(new Registered($user));
 
         return $user;
     }
