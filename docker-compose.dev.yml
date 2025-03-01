@@ -9,6 +9,8 @@ services:
     volumes:
       - ./:/var/www
       - ./docker/nginx/dev:/etc/nginx/conf.d/
+    depends_on:
+      - app-dev
 
   app-dev:
     container_name: ${APP_NAME}-app-dev

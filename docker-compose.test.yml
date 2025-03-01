@@ -12,6 +12,8 @@ services:
       - icons_data:/var/www/public/icons
       - images_data:/var/www/public/images
       - uploads_data:/var/www/public/uploads
+    depends_on:
+      - app
 
   app:
     container_name: ${APP_NAME}-app

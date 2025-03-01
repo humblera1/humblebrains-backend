@@ -1,66 +1,137 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
+    <img src="https://humblebrains.ru/favicon.png" alt="HumbleBrains Logo" style="width:75px; height: 75px" />
+    <h1>HumbleBrains [backend]</h1>
+</div>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
+HumbleBrains [backend] is the API for the HumbleBrains application, built on Laravel 11. The application is designed to enhance cognitive abilities including attention, concentration, memory, and logical reasoning. It achieves this through personalized training plans that are generated based on periodic performance checkpoints.
 
-## About Laravel
+## Project Structure
+- **Application Code**: Follows standard Laravel project structure.
+- **Environment Configuration**: Uses environment variables managed via the `.env` file.
+- **Docker Configuration**:
+    - `docker-compose.dev.yml`: For development environment setup.
+    - `docker-compose.prod.yml`: For production environment setup.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Key Concepts
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Anonymous and Non-anonymous Users
+The application assumes the existence of two types of users.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Non-anonymous** users are those who have gone through the registration process, whereas **anonymous** users are all client-side users who can be identified by their cookies.
 
-## Learning Laravel
+This approach is used to provide client-side users with full functionality for exercises or checkpoints.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Adding/Editing Games
+Games contain key properties that determine its difficulty at different levels. Properties are presented in the configuration file `/config/properties/index.php`, to add new properties to the database, use the `php artisan app:import-properties` command.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Property values depending on the levels for a particular game are set in the `/config/games/[game].php` file. Basic properties of the game are also set there, such as name, description or category. To add a game to the database, use the `php artisan app:import-games` command.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+In the future, it is planned to implement an admin panel to manage games.
 
-## Laravel Sponsors
+## Development Environment Setup
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Prerequisites
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
-### Premium Partners
+### Clone the Repository & Setup Environment Variables
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Copy the `.env.example` file to `.env` and modify it according to your development needs.
 
-## Contributing
+```bash
+git clone https://github.com/humblera1/humblebrains-backend.git
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Start Docker Containers
+Build and start the development containers using the development Docker Compose file:
 
-## Code of Conduct
+```bash
+docker compose -f docker-compose.dev.yml up --d
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Run Migrations
+Execute Laravel migrations to set up your database schema:
 
-## Security Vulnerabilities
+```bash
+docker compose -f docker-compose.dev.yml exec app php artisan migrate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Initialize the Project
 
-## License
+The following command will perform all the steps to initialize the project, populating the database with the necessary entries:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+docker compose -f docker-compose.dev.yml exec app php artisan app:init
+```
+
+### Access the API
+The API will be available at the configured host and port (typically `http://localhost:<port>`).
+
+## Production Environment Setup
+
+### Prerequisites
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+Ensure your production server is equipped with Docker and Docker Compose. Copy and adjust the .env file for production settings:
+
+```bash
+cp .env.example .env
+```
+
+### Deploy Containers
+Build and run the containers in detached mode using the production Docker Compose configuration:
+
+```bash
+docker-compose -f docker-compose.prod.yml up --build -d
+```
+
+### Run Migrations
+Apply migrations in production. The --force flag ensures migrations run in the production environment:
+
+```bash
+docker-compose -f docker-compose.prod.yml exec app php artisan migrate --force
+```
+
+### Initialize the Project
+
+The following command will perform all the steps to initialize the project, populating the database with the necessary entries:
+
+```bash
+docker compose -f docker-compose.dev.yml exec app php artisan app:init
+```
+
+### Configure Web Server
+If applicable, configure your web server (e.g., Nginx) to proxy requests to the appropriate container port.
+
+
+## Deployment with GitHub Actions
+
+This section outlines the CI/CD pipeline configured with GitHub Actions for automated production deployments.
+
+The workflow is triggered on push events to tags that follow the semantic versioning pattern `v*.*.*`, and it performs the following stages: Testing, Building & Pushing, and Deployment.
+
+### Testing Stage
+Purpose: Validate your application by running an isolated test environment.
+
+The environment is started in detached mode using `docker-compose.test.yml`, which spins up all necessary containers (such as the application, database, etc.) configured for testing.
+
+The test stage clears the configuration cache, runs database migrations, initializes the application, and executes the Laravel test suite. Any failure terminates the workflow.
+
+### Building & Pushing Stage
+Purpose: Package the production-ready Docker images.
+
+After successful tests, the workflow checks out the code again and ensures proper environment setup. Docker images are built and then pushed to Docker Hub using the production Docker Compose file (`docker-compose.prod.yml`).
+
+### Deployment Stage
+Purpose: Update the production server with the new version of application.
+
+The pipeline deploys files to `/home/projects/humblebrains-backend/`.
+
+### Secrets Required
+- `DOCKER_USERNAME` & `DOCKER_PASSWORD`: Used for authenticating with Docker Hub.
+- `TIMEWEB_HOST`: The hostname or IP address of production server.
+- `TIMEWEB_USER`: The server username for SSH access.
+- `SSH_PRIVATE_KEY`: The server username for SSH access.

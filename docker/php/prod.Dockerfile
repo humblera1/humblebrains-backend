@@ -54,8 +54,10 @@ WORKDIR /var/www
 
 COPY --from=php-build /var/www /var/www
 
+RUN mkdir -p /var/www/storage/app/public
+
 # Fix permissions for Laravel storage and cache directories
-RUN chown -R phpuser:phpuser /var/www/storage /var/www/bootstrap/cache
+RUN chown -R phpuser:phpuser /var/www/storage /var/www/bootstrap/cache /var/www/storage/app/public
 
 # Switch to non-root user
 USER phpuser

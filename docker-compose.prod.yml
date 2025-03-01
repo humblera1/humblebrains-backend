@@ -16,14 +16,16 @@ services:
       - "traefik.docker.network=traefik_net"
 
       # HTTP Router (port 80) - redirect to HTTPS
-      - "traefik.http.routers.humblebrains-web.rule=Host(`api.humblebrains.ru`) || Host(`www.api.humblebrains.ru`)"
-      - "traefik.http.routers.humblebrains-web.entrypoints=web"
-      - "traefik.http.routers.humblebrains-web.middlewares=redirect-to-https@file"
+      - "traefik.http.routers.humblebrains-api-web.rule=Host(`api.humblebrains.ru`) || Host(`www.api.humblebrains.ru`)"
+      - "traefik.http.routers.humblebrains-api-web.entrypoints=web"
+      - "traefik.http.routers.humblebrains-api-web.middlewares=redirect-to-https@file"
 
       # HTTPS Router (port 443) - serve TLS
-      - "traefik.http.routers.humblebrains-secure.rule=Host(`api.humblebrains.ru`) || Host(`www.api.humblebrains.ru`)"
-      - "traefik.http.routers.humblebrains-secure.entrypoints=websecure"
-      - "traefik.http.routers.humblebrains-secure.tls.certresolver=myresolver"
+      - "traefik.http.routers.humblebrains-api-secure.rule=Host(`api.humblebrains.ru`) || Host(`www.api.humblebrains.ru`)"
+      - "traefik.http.routers.humblebrains-api-secure.entrypoints=websecure"
+      - "traefik.http.routers.humblebrains-api-secure.tls.certresolver=myresolver"
+    depends_on:
+      - app
 
   app:
     container_name: ${APP_NAME}-app

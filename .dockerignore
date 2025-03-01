@@ -10,7 +10,7 @@ public/build
 public/hot
 
 # Локальное хранилище
-public/storage
+# public/storage
 
 # Ключи шифрования и прочие чувствительные данные из storage
 storage/*.key
