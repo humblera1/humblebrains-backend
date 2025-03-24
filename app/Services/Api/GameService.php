@@ -30,8 +30,9 @@ final class GameService
 
     /**
      * The game round duration in seconds.
+     * todo: global config
      */
-    private const GAME_DURATION = 5;
+    private const GAME_DURATION = 90;
 
     /**
      * Save the game result.
