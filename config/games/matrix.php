@@ -9,8 +9,10 @@ return [
         'en' => 'Matrix',
     ],
     'description' => [
-        'ru' => 'Описание игры матрица',
-        'en' => 'Matrix description',
+        'ru' => '"Матрица" представляет собой упражнение для развития пространственной памяти. Это достигается постоянной необходимостью запоминать и воссоздавать положение нужных ячеек. Новые задания сменяются достаточно быстро, и ориентироваться становится сложнее. Кроме того, обязательный порядок воссоздания ячеек или переворот всего рабочего поля усложнит задание и сделает его более увлекательным.
+            Помимо этого, упражнение отлично развивает кратковременную память, внимание и скорость мышления.',
+        'en' => '"Matrix" is an exercise designed to develop spatial memory. This is achieved through the constant need to memorize and recreate the positions of the required cells. New tasks change quite quickly, making it more challenging to navigate. Additionally, the mandatory order of recreating cells or flipping the entire playing field will complicate the task and make it more engaging.
+            Moreover, the exercise is excellent for developing short-term memory, attention, and speed of thinking.',
     ],
     'max_level' => 30,
     'main_image' => 'images/games/matrix/main.png',
@@ -18,7 +20,18 @@ return [
     'icon_image' => 'images/games/matrix/icon.png',
     'category' => CategoryEnum::Memory,
     'tutorial' => [
-        'ru' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+        'ru' => 'Цель игры заключается в том, чтобы запомнить расположение ячеек, отмеченных определенным цветом, и воспроизвести их на следующем этапе упражнения. Размер поля и, соответственно, сложность будет увеличиваться по мере продвижения по уровням игры.
+            В ходе игры часть ячеек рабочего поля будет отмечена определенным цветом. Ваша задача — запомнить их расположение. Нажмите кнопку «Запомнил» после того, как вы запомнили расположение ячеек. На чистом рабочем поле отметьте ячейки, которые были выделены ранее. Зеленым цветом будут отмечены правильные ответы, а красным — неверные.
+            Сначала вы будете запоминать ячейки одного цвета. Однако, с ростом сложности игры, цветов на поле может стать больше.
+            На некоторых уровнях потребуется запоминать и порядок показа ячеек. Каждой показанной вам ячейке будет присвоен номер. Вам нужно отмечать ответы в строгом порядке, иначе они не будут засчитаны.
+            Также существует усложняющее дополнение, при котором перед тем, как вы начнете отмечать ячейки, все рабочее поле переворачивается. Вам нужно будет переосмыслить, где находятся нужные ячейки после переворота.
+            Удачи!',
+        'en' => 'The objective of the game is to memorize the positions of cells marked with a specific color and reproduce them in the next stage of the exercise. The size of the field and, consequently, the difficulty will increase as you progress through the game levels.
+            During the game, some cells on the playing field will be marked with a specific color. Your task is to memorize their positions. Press the "Memorized" button once you have memorized the positions of the cells. On a blank playing field, mark the cells that were highlighted earlier. Correct answers will be marked in green, while incorrect ones will be marked in red.
+            Initially, you will memorize cells of a single color. However, as the game\'s difficulty increases, more colors may appear on the field.
+            On certain levels, you will need to memorize the order in which the cells are shown. Each cell shown to you will be assigned a number. You must mark the answers in the exact order; otherwise, they will not be counted.
+            There is also a challenging addition where the entire playing field is flipped before you start marking the cells. You will need to rethink where the required cells are located after the flip.
+            Good luck!',
     ],
     'levels' => [
         1 => [

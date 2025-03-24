@@ -96,7 +96,7 @@ class ImportGames extends AbstractRecordCommand
                 $tutorialsData['created_at'] = now();
                 $tutorialsData['updated_at'] = now();
 
-                DB::table($this->tutorialsTable)->upsert($tutorialsData, ['id'], ['game_id', 'content', 'created_at', 'updated_at']);
+                DB::table($this->tutorialsTable)->updateOrInsert(['game_id' => $gameId], $tutorialsData);
             }
 
             if (!empty($levelsData)) {
