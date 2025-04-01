@@ -49,13 +49,14 @@ RUN touch /tmp/xdebug.log \
     && chown www-data:www-data /tmp/xdebug.log \
     && chmod 666 /tmp/xdebug.log
 
-RUN addgroup -g 1000 -S phpuser \
-    && adduser -u 1000 -G phpuser -s /bin/sh -D phpuser
-
 WORKDIR /var/www
 
 COPY . /var/www
 
 RUN composer install --no-interaction
 
-ENTRYPOINT ["php-fpm"]
+# Add a script to fix permissions
+COPY ./docker/php/fix-permissions.sh /usr/local/bin/fix-permissions.sh
+RUN chmod +x /usr/local/bin/fix-permissions.sh
+
+ENTRYPOINT ["/usr/local/bin/fix-permissions.sh", "php-fpm"]

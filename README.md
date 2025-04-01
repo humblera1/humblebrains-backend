@@ -48,14 +48,14 @@ cp .env.example .env
 Build and start the development containers using the development Docker Compose file:
 
 ```bash
-docker compose -f docker-compose.dev.yml up --d
+docker compose -f docker-compose.dev.yml up -d
 ```
 
 ### Run Migrations
 Execute Laravel migrations to set up your database schema:
 
 ```bash
-docker compose -f docker-compose.dev.yml exec app php artisan migrate
+docker compose -f docker-compose.dev.yml exec app-dev php artisan migrate
 ```
 
 ### Initialize the Project
@@ -63,7 +63,7 @@ docker compose -f docker-compose.dev.yml exec app php artisan migrate
 The following command will perform all the steps to initialize the project, populating the database with the necessary entries:
 
 ```bash
-docker compose -f docker-compose.dev.yml exec app php artisan app:init
+docker compose -f docker-compose.dev.yml exec app-dev php artisan app:init
 ```
 
 ### Access the API
